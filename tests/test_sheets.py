@@ -1,6 +1,7 @@
 import unittest
+from unittest.mock import patch
 
-from porra_mundial.sheets import _rows_to_dicts, _sanitize_participant
+from porra_mundial.sheets import _read_tsv_url, _rows_to_dicts, _sanitize_participant
 
 
 class SheetMappingTests(unittest.TestCase):
@@ -45,7 +46,22 @@ class SheetMappingTests(unittest.TestCase):
         self.assertNotIn("Nombre real", participant)
         self.assertNotIn("Email", participant)
 
+    def test_reads_public_tsv_url(self):
+        class FakeResponse:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_args):
+                return False
+
+            def read(self):
+                return "Alias\tEquipo del Bombo 1\nCrack26\tEspana\n".encode()
+
+        with patch("porra_mundial.sheets.urlopen", return_value=FakeResponse()):
+            rows = _read_tsv_url("https://example.test/public.tsv")
+
+        self.assertEqual(rows, [["Alias", "Equipo del Bombo 1"], ["Crack26", "Espana"]])
+
 
 if __name__ == "__main__":
     unittest.main()
-
