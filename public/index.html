@@ -6,253 +6,1055 @@
   <title>Porra Mundial 2026</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #0a0a0a;
       --surface: #151515;
       --surface2: #1d1d1d;
       --line: #2a2a2a;
-      --white: #f5f5f5;
-      --muted: #9a9a9a;
-      --dim: #5c5c5c;
       --gold: #c8a24b;
       --gold-bright: #e6c766;
       --gold-dim: #8a7234;
+      --white: #f5f5f5;
+      --muted: #9a9a9a;
+      --dim: #5c5c5c;
       --can: #c8102e;
       --mex: #00833e;
       --usa: #0a3161;
+      --ok: #3fb950;
+      --bad: #ff8d8d;
     }
 
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      margin: 0;
       min-height: 100vh;
       color: var(--white);
-      font-family: "Barlow", sans-serif;
+      font-family: "Barlow", system-ui, sans-serif;
       background:
-        radial-gradient(circle at 20% 10%, rgba(200, 16, 46, .22), transparent 32rem),
-        radial-gradient(circle at 80% 0%, rgba(10, 49, 97, .34), transparent 34rem),
-        linear-gradient(150deg, #050505, #101010 58%, #07120c);
+        radial-gradient(circle at 10% 0%, rgba(200, 16, 46, .16), transparent 34rem),
+        radial-gradient(circle at 92% 3%, rgba(10, 49, 97, .34), transparent 36rem),
+        radial-gradient(circle at 80% 100%, rgba(0, 131, 62, .18), transparent 30rem),
+        var(--bg);
     }
 
-    main {
-      width: min(1120px, calc(100% - 32px));
+    button { font: inherit; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid var(--gold-dim);
+      background: linear-gradient(180deg, #111, rgba(10, 10, 10, .96));
+      backdrop-filter: blur(14px);
+    }
+
+    .wrap {
+      width: min(1080px, calc(100% - 28px));
       margin: 0 auto;
-      padding: 40px 0;
     }
 
-    header {
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 22px;
+    .brand {
+      display: flex;
       align-items: center;
-      margin-bottom: 32px;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 12px 0;
+    }
+
+    .brand-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
     }
 
     .emblem {
-      display: grid;
-      place-items: center;
-      width: 82px;
-      height: 82px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
       border: 2px solid var(--gold);
-      border-radius: 20px;
+      border-radius: 8px;
       color: var(--gold-bright);
       font-family: "Barlow Condensed", sans-serif;
-      font-size: 46px;
+      font-size: 16px;
       font-weight: 800;
-      background: linear-gradient(145deg, rgba(200, 162, 75, .18), rgba(255, 255, 255, .03));
-      box-shadow: 0 24px 80px rgba(0, 0, 0, .35);
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, #1a1a1a, #0a0a0a);
     }
 
-    h1 {
-      margin: 0;
+    .title {
       font-family: "Barlow Condensed", sans-serif;
-      font-size: clamp(44px, 8vw, 86px);
-      line-height: .86;
-      letter-spacing: -.03em;
+      font-size: clamp(20px, 5vw, 28px);
+      font-weight: 800;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .title span { color: var(--gold); }
+
+    .meta-line {
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 11px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .host-dots {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--dim);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .tabs {
+      position: sticky;
+      top: 61px;
+      z-index: 19;
+      border-bottom: 1px solid var(--line);
+      background: rgba(17, 17, 17, .96);
+      backdrop-filter: blur(14px);
+    }
+
+    .tab-list {
+      display: flex;
+      overflow-x: auto;
+    }
+
+    .tab {
+      flex: 0 0 auto;
+      border: 0;
+      border-bottom: 2px solid transparent;
+      padding: 10px 14px;
+      color: var(--muted);
+      background: none;
+      cursor: pointer;
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .tab.active {
+      color: var(--gold-bright);
+      border-bottom-color: var(--gold);
+    }
+
+    main {
+      padding: 18px 0 34px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.2fr auto;
+      gap: 18px;
+      align-items: center;
+      margin-bottom: 16px;
+      border: 1px solid var(--gold-dim);
+      border-radius: 14px;
+      padding: 16px 18px;
+      background:
+        linear-gradient(135deg, rgba(200, 162, 75, .14), rgba(10, 10, 10, .85)),
+        var(--surface);
+    }
+
+    .hero h1 {
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: clamp(34px, 7vw, 56px);
+      line-height: .9;
+      letter-spacing: -.02em;
       text-transform: uppercase;
     }
 
-    .subtitle {
-      margin: 10px 0 0;
+    .hero p {
+      margin-top: 8px;
       color: var(--muted);
-      font-size: 18px;
+      font-size: 14px;
     }
 
-    .grid {
-      display: grid;
-      grid-template-columns: 1.4fr .8fr;
-      gap: 18px;
+    .prize {
+      text-align: right;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .prize strong {
+      color: var(--gold-bright);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 24px;
     }
 
     .card {
       border: 1px solid var(--line);
-      border-radius: 26px;
-      padding: 22px;
-      background: color-mix(in srgb, var(--surface) 88%, transparent);
-      backdrop-filter: blur(14px);
-      box-shadow: 0 24px 70px rgba(0, 0, 0, .24);
+      border-radius: 12px;
+      background: rgba(21, 21, 21, .92);
+      overflow: hidden;
     }
 
-    .card h2 {
-      margin: 0 0 16px;
-      font-family: "Barlow Condensed", sans-serif;
-      font-size: 34px;
-      text-transform: uppercase;
+    .section-note {
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
     }
 
-    table {
+    .stack { display: flex; flex-direction: column; gap: 10px; }
+
+    .ranking-card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      overflow: hidden;
+      transition: border-color .15s ease, transform .15s ease;
+    }
+
+    .ranking-card:hover {
+      border-color: var(--gold-dim);
+      transform: translateY(-1px);
+    }
+
+    .ranking-head {
+      display: grid;
+      grid-template-columns: 42px 1fr auto;
+      gap: 12px;
+      align-items: center;
       width: 100%;
-      border-collapse: collapse;
-    }
-
-    th, td {
-      padding: 13px 10px;
-      border-bottom: 1px solid var(--line);
+      border: 0;
+      padding: 12px 14px;
+      color: inherit;
+      background: none;
+      cursor: pointer;
       text-align: left;
     }
 
-    th {
-      color: var(--gold-bright);
-      font-size: 13px;
-      letter-spacing: .08em;
-      text-transform: uppercase;
+    .rank {
+      color: var(--gold);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+      text-align: center;
     }
 
-    td:last-child, th:last-child { text-align: right; }
-
-    .muted { color: var(--muted); }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 10px;
-      border: 1px solid var(--gold-dim);
-      border-radius: 999px;
-      color: var(--gold-bright);
-      background: rgba(200, 162, 75, .09);
-      font-size: 14px;
-      font-weight: 600;
+    .alias {
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 22px;
+      font-weight: 700;
     }
 
     .teams {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 8px;
+      gap: 5px;
+      margin-top: 5px;
     }
 
-    .team {
-      padding: 6px 9px;
-      border-radius: 10px;
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 3px 8px;
+      color: var(--muted);
+      background: #101010;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .score {
+      text-align: right;
+      color: var(--gold-bright);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 32px;
+      font-weight: 800;
+      line-height: .9;
+    }
+
+    .score span {
+      display: block;
+      margin-top: 4px;
+      color: var(--dim);
+      font-family: "Barlow", sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    .details {
+      display: none;
+      border-top: 1px solid var(--line);
+      padding: 12px 14px 14px;
+    }
+
+    .ranking-card.open .details { display: block; }
+
+    .breakdown {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      padding: 8px 10px;
+      background: #101010;
+    }
+
+    .metric label {
+      display: block;
+      color: var(--dim);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .8px;
+      text-transform: uppercase;
+    }
+
+    .metric strong {
+      color: var(--gold-bright);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 22px;
+    }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 8px;
+    }
+
+    .team-card {
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      padding: 10px;
+      background: #101010;
+    }
+
+    .team-card h3 {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
       color: var(--white);
-      background: var(--surface2);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .team-card small {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
       font-size: 13px;
     }
 
-    .status {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+    th {
+      padding: 9px 8px;
       color: var(--muted);
+      background: #111;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .8px;
+      text-align: left;
+      text-transform: uppercase;
     }
 
-    .error {
-      color: #ffb4b4;
+    td {
+      padding: 8px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      vertical-align: middle;
     }
 
-    @media (max-width: 820px) {
-      header, .grid { grid-template-columns: 1fr; }
-      .emblem { width: 70px; height: 70px; }
+    td.num, th.num { text-align: right; }
+    td.center, th.center { text-align: center; }
+
+    .team-name { color: var(--white); font-weight: 600; }
+    .gold { color: var(--gold-bright); font-weight: 700; }
+    .dim { color: var(--dim); }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .toolbar-label {
+      margin-right: 2px;
+      color: var(--dim);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .filter {
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 5px 10px;
+      color: var(--muted);
+      background: var(--surface);
+      cursor: pointer;
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .filter.active {
+      border-color: var(--gold);
+      color: var(--white);
+      background: var(--gold-dim);
+    }
+
+    .match-row {
+      display: grid;
+      grid-template-columns: 72px 1fr auto 1fr;
+      gap: 10px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      padding: 9px 11px;
+      background: var(--surface);
+      font-size: 13px;
+    }
+
+    .match-date { color: var(--dim); font-size: 11px; }
+    .home { text-align: right; color: var(--white); }
+    .away { color: var(--white); }
+    .result {
+      min-width: 54px;
+      border-radius: 7px;
+      padding: 5px 8px;
+      color: var(--gold-bright);
+      background: #0f0f0f;
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .date-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 16px 0 7px;
+      color: var(--muted);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+    }
+
+    .date-title::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--line);
+    }
+
+    .pot-1 { color: #c8a24b; }
+    .pot-2 { color: #b8b8b8; }
+    .pot-3 { color: #cd7f32; }
+    .pot-4 { color: #7da3d4; }
+
+    .empty {
+      border: 1px dashed var(--line);
+      border-radius: 12px;
+      padding: 18px;
+      color: var(--muted);
+      background: rgba(21, 21, 21, .65);
+    }
+
+    .footer {
+      padding: 18px 0 24px;
+      color: var(--dim);
+      font-size: 10px;
+      text-align: center;
+    }
+
+    @media (max-width: 760px) {
+      .brand { align-items: flex-start; }
+      .host-dots { display: none; }
+      .tabs { top: 61px; }
+      .hero { grid-template-columns: 1fr; }
+      .prize { text-align: left; }
+      .ranking-head { grid-template-columns: 34px 1fr auto; }
+      .breakdown { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .match-row { grid-template-columns: 1fr auto 1fr; }
+      .match-date { display: none; }
     }
   </style>
 </head>
 <body>
-  <main>
-    <header>
-      <div class="emblem">26</div>
-      <div>
-        <h1>Porra Mundial 2026</h1>
-        <p class="subtitle">Clasificacion viva, selecciones elegidas y bonus finales.</p>
+  <header class="topbar">
+    <div class="wrap brand">
+      <div class="brand-left">
+        <div class="emblem">26</div>
+        <div>
+          <div class="title">Porra <span>Mundial 2026</span></div>
+          <div id="metaLine" class="meta-line">Cargando datos...</div>
+        </div>
       </div>
-    </header>
+      <div class="host-dots">
+        <span class="dot" style="background:var(--can)"></span>
+        <span class="dot" style="background:var(--mex)"></span>
+        <span class="dot" style="background:var(--usa)"></span>
+        CAN · MEX · USA
+      </div>
+    </div>
+  </header>
 
-    <section class="grid">
-      <article class="card">
-        <h2>Clasificacion</h2>
-        <div id="ranking" class="muted">Cargando datos...</div>
-      </article>
-      <aside class="card">
-        <h2>Estado</h2>
-        <div id="status" class="status">Cargando...</div>
-      </aside>
-    </section>
+  <nav class="tabs">
+    <div id="tabs" class="wrap tab-list"></div>
+  </nav>
+
+  <main class="wrap">
+    <section id="hero" class="hero"></section>
+    <section id="app"></section>
   </main>
 
+  <footer class="footer">
+    Porra Mundial 2026 · GitHub Pages · datos.json generado por GitHub Actions
+  </footer>
+
   <script>
-    const rankingEl = document.querySelector("#ranking");
-    const statusEl = document.querySelector("#status");
+    const TABS = [
+      ["porra", "Clasificacion"],
+      ["selecciones", "Selecciones"],
+      ["elim", "Eliminatorias"],
+      ["grupos", "Grupos"],
+      ["partidos", "Fase grupos"],
+      ["bombos", "Bombos"],
+    ];
+
+    const BOMBOS = [
+      ["Estados Unidos", "Croacia", "Noruega", "Jordania"],
+      ["Canada", "Marruecos", "Panama", "Cabo Verde"],
+      ["Mexico", "Colombia", "Egipto", "Ghana"],
+      ["España", "Uruguay", "Argelia", "Curazao"],
+      ["Argentina", "Suiza", "Escocia", "Haiti"],
+      ["Francia", "Japon", "Paraguay", "Nueva Zelanda"],
+      ["Inglaterra", "Senegal", "Tunez", "Bosnia y Herzegovina*"],
+      ["Brasil", "Iran", "Costa de Marfil", "Chequia*"],
+      ["Portugal", "Corea del Sur", "Uzbekistan", "Turquia*"],
+      ["Paises Bajos", "Ecuador", "Catar", "Suecia*"],
+      ["Belgica", "Austria", "Arabia Saudi", "RD Congo**"],
+      ["Alemania", "Australia", "Sudafrica", "Irak**"],
+    ];
+
+    const BOMBO_MAP = Object.fromEntries(
+      BOMBOS.flatMap((row) => row.map((team, index) => [cleanTeam(team), index + 1]))
+    );
+    Object.assign(BOMBO_MAP, {
+      "Canadá": 1,
+      "México": 1,
+      "Países Bajos": 1,
+      "Bélgica": 1,
+      "Japón": 2,
+      "Irán": 2,
+      "Panamá": 3,
+      "Túnez": 3,
+      "Uzbekistán": 3,
+      "Arabia Saudí": 3,
+      "Sudáfrica": 3,
+      "Haití": 4,
+      "Turquía": 4,
+      "Turquía*": 4,
+    });
+    const BOMBO_COL = ["#c8a24b", "#b8b8b8", "#cd7f32", "#7da3d4"];
+    const ROUND_LABEL = {
+      grupos: "Grupos",
+      R32: "R. de 32",
+      R16: "Octavos",
+      QF: "Cuartos",
+      SF: "Semifinal",
+      "3RD": "3er puesto",
+      F: "Final",
+    };
+    const ROUND_ORDER = { R32: 1, R16: 2, QF: 3, SF: 4, "3RD": 5, F: 6 };
+
+    let DATA = null;
+    let activeTab = "porra";
+    let openAlias = null;
+    let selectionSort = "total";
+    let selectionBombo = 0;
+    let groupFilter = "";
+    let roundFilter = 0;
+    let koRound = "R32";
 
     fetch("datos.json")
       .then((response) => {
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         return response.json();
       })
-      .then(render)
+      .then((data) => {
+        DATA = normalizePayload(data);
+        openAlias = DATA.participantes[0]?.alias || null;
+        render();
+      })
       .catch((error) => {
-        rankingEl.innerHTML = `<p class="error">No se pudo cargar datos.json: ${error.message}</p>`;
-        statusEl.textContent = "Pendiente de generar datos.";
+        document.querySelector("#metaLine").textContent = "No se pudo cargar datos.json";
+        document.querySelector("#hero").innerHTML = `
+          <div>
+            <h1>Porra Mundial 2026</h1>
+            <p>No se pudo cargar <strong>datos.json</strong>.</p>
+          </div>
+          <div class="prize">${escapeHtml(error.message)}</div>
+        `;
+        document.querySelector("#app").innerHTML = `<div class="empty">Pendiente de generar datos desde GitHub Actions.</div>`;
       });
 
-    function render(data) {
-      const rows = data.participantes.map((p, index) => `
-        <tr>
-          <td>
-            <strong>${index + 1}. ${escapeHtml(p.alias)}</strong>
-            <div class="teams">${p.equipos.map((team) => `<span class="team">${escapeHtml(team)}</span>`).join("")}</div>
-          </td>
-          <td>${p.desglose.grupos}</td>
-          <td>${p.desglose.playoffs_resultado + p.desglose.playoffs_pase}</td>
-          <td>${p.desglose.bonus_final}</td>
-          <td><span class="pill">${p.puntos_total} pts</span></td>
-        </tr>
+    function normalizePayload(data) {
+      return {
+        meta: data.meta || {},
+        participantes: data.participantes || data.participants || [],
+        partidos: (data.partidos || data.matches || []).map(normalizeMatch),
+        goleadores: data.goleadores || [],
+      };
+    }
+
+    function normalizeMatch(match) {
+      if (Array.isArray(match)) {
+        const [matchid, group, roundnumber, fecha, home, away, hs, as, pasa, ronda] = match;
+        return {
+          matchid,
+          group,
+          roundnumber,
+          ronda,
+          fecha,
+          home_team: home,
+          away_team: away,
+          home_score: hs,
+          away_score: as,
+          home_score_90: hs,
+          away_score_90: as,
+          pasa,
+          status: "FT",
+        };
+      }
+      return {
+        ...match,
+        fecha: match.fecha || match.date || match.dateEvent || "",
+        group: match.group || null,
+        roundnumber: match.roundnumber || null,
+        ronda: match.ronda || "grupos",
+      };
+    }
+
+    function render() {
+      renderChrome();
+      const renderers = {
+        porra: renderRanking,
+        selecciones: renderSelections,
+        elim: renderKnockouts,
+        grupos: renderGroups,
+        partidos: renderMatches,
+        bombos: renderBombos,
+      };
+      document.querySelector("#app").innerHTML = renderers[activeTab]();
+      bindEvents();
+    }
+
+    function renderChrome() {
+      const meta = DATA.meta;
+      document.querySelector("#metaLine").textContent =
+        `${meta.estado_torneo || "pre"} · ${meta.fuente || "datos.json"} · ${meta.ultima_actualizacion || ""}`;
+
+      document.querySelector("#tabs").innerHTML = TABS.map(([key, label]) => `
+        <button class="tab ${activeTab === key ? "active" : ""}" data-tab="${key}">${label}</button>
       `).join("");
 
-      rankingEl.innerHTML = `
-        <table>
-          <thead>
-            <tr>
-              <th>Participante</th>
-              <th>Grupos</th>
-              <th>KO</th>
-              <th>Bonus</th>
-              <th>Total</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
-      `;
-
-      statusEl.innerHTML = `
-        <span><strong>Estado:</strong> ${escapeHtml(data.meta.estado_torneo)}</span>
-        <span><strong>Fuente:</strong> ${escapeHtml(data.meta.fuente)}</span>
-        <span><strong>Actualizado:</strong> ${escapeHtml(data.meta.ultima_actualizacion)}</span>
-        <span><strong>Partidos:</strong> ${data.partidos.length}</span>
+      const pot = DATA.participantes.length * 10;
+      document.querySelector("#hero").innerHTML = `
+        <div>
+          <h1>Clasificacion viva</h1>
+          <p>${escapeHtml(DATA.participantes.length)} participantes · ${escapeHtml(DATA.partidos.length)} partidos cargados · ${escapeHtml(DATA.goleadores.length)} goleadores</p>
+        </div>
+        <div class="prize">
+          <div>Bote estimado</div>
+          <strong>${pot}€</strong>
+          <div>1º ${Math.round(pot * .8)}€ · 2º ${Math.round(pot * .2)}€</div>
+        </div>
       `;
     }
 
+    function renderRanking() {
+      if (!DATA.participantes.length) return `<div class="empty">Todavia no hay participantes publicados.</div>`;
+      return `<div class="stack">${DATA.participantes.map((participant, index) => renderParticipant(participant, index)).join("")}</div>`;
+    }
+
+    function renderParticipant(participant, index) {
+      const breakdown = participant.desglose || {};
+      const isOpen = openAlias === participant.alias;
+      return `
+        <article class="ranking-card ${isOpen ? "open" : ""}">
+          <button class="ranking-head" data-open="${escapeAttr(participant.alias)}">
+            <div class="rank">${index + 1}</div>
+            <div>
+              <div class="alias">${escapeHtml(participant.alias)}</div>
+              <div class="teams">${(participant.equipos || []).map((team) => `<span class="chip">${escapeHtml(team)}</span>`).join("")}</div>
+            </div>
+            <div class="score">${participant.puntos_total || 0}<span>puntos</span></div>
+          </button>
+          <div class="details">
+            <div class="breakdown">
+              ${metric("Grupos", breakdown.grupos)}
+              ${metric("KO resultado", breakdown.playoffs_resultado)}
+              ${metric("KO pase", breakdown.playoffs_pase)}
+              ${metric("Bonus", breakdown.bonus_final)}
+            </div>
+            <div class="team-grid">
+              ${(participant.team_data || []).map(renderTeamData).join("")}
+            </div>
+            <div class="teams" style="margin-top:12px">
+              <span class="chip">Campeon: ${escapeHtml(participant.campeon || "-")}</span>
+              <span class="chip">Subcampeon: ${escapeHtml(participant.subcampeon || "-")}</span>
+              <span class="chip">Pichichi: ${escapeHtml(participant.pichichi || "-")}</span>
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderTeamData(teamData) {
+      const bombo = teamData.bombo || getBombo(teamData.team);
+      const color = BOMBO_COL[bombo - 1] || "var(--gold)";
+      return `
+        <div class="team-card" style="border-color:${color}55">
+          <h3>
+            <span>${escapeHtml(teamData.team)}</span>
+            <span style="color:${color}">${(teamData.g_pts || 0) + (teamData.ko_pts || 0)}</span>
+          </h3>
+          <small>Bombo ${bombo} · Grupos ${teamData.g_pts || 0} · KO ${teamData.ko_pts || 0}</small>
+          ${(teamData.rondas_pasadas || []).length ? `<div class="teams">${teamData.rondas_pasadas.map((round) => `<span class="chip">${ROUND_LABEL[round] || round}</span>`).join("")}</div>` : ""}
+        </div>
+      `;
+    }
+
+    function metric(label, value) {
+      return `<div class="metric"><label>${label}</label><strong>${value || 0}</strong></div>`;
+    }
+
+    function renderSelections() {
+      const teams = computeTeamScores()
+        .filter((team) => !selectionBombo || team.bombo === selectionBombo)
+        .sort((a, b) => {
+          if (selectionSort === "grupos") return b.grupos - a.grupos || a.team.localeCompare(b.team);
+          if (selectionSort === "ko") return (b.ko_resultado + b.ko_pase) - (a.ko_resultado + a.ko_pase) || a.team.localeCompare(b.team);
+          return b.total - a.total || a.team.localeCompare(b.team);
+        });
+      return `
+        <p class="section-note">Puntos que aporta cada seleccion: grupos + resultado de eliminatorias a 90 minutos + bonus de pase por bombo.</p>
+        ${selectionToolbar()}
+        <div class="card">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th><th>Seleccion</th><th class="center">Bombo</th><th class="num">Grupos</th><th class="num">KO res</th><th class="num">KO pase</th><th class="num">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${teams.map((team, index) => `
+                <tr>
+                  <td class="dim">${index + 1}</td>
+                  <td class="team-name">${escapeHtml(team.team)}</td>
+                  <td class="center pot-${team.bombo}">${team.bombo}</td>
+                  <td class="num">${team.grupos}</td>
+                  <td class="num">${team.ko_resultado}</td>
+                  <td class="num">${team.ko_pase}</td>
+                  <td class="num gold">${team.total}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function selectionToolbar() {
+      return `
+        <div class="toolbar">
+          <span class="toolbar-label">Ordenar</span>
+          ${buttonFilter("sort", "total", "Total", selectionSort)}
+          ${buttonFilter("sort", "grupos", "Grupos", selectionSort)}
+          ${buttonFilter("sort", "ko", "Eliminatorias", selectionSort)}
+          <span class="toolbar-label" style="margin-left:8px">Bombo</span>
+          ${[0, 1, 2, 3, 4].map((bombo) => buttonFilter("bombo", String(bombo), bombo ? String(bombo) : "Todos", String(selectionBombo))).join("")}
+        </div>
+      `;
+    }
+
+    function renderKnockouts() {
+      const matches = DATA.partidos.filter((match) => match.ronda && match.ronda !== "grupos");
+      if (!matches.length) return `<div class="empty">Todavia no hay eliminatorias cargadas.</div>`;
+      const rounds = [...new Set(matches.map((match) => match.ronda))].sort((a, b) => (ROUND_ORDER[a] || 99) - (ROUND_ORDER[b] || 99));
+      if (!rounds.includes(koRound)) koRound = rounds[0];
+      return `
+        <div class="toolbar">${rounds.map((round) => buttonFilter("koround", round, ROUND_LABEL[round] || round, koRound)).join("")}</div>
+        <div class="stack">${matches.filter((match) => match.ronda === koRound).map(renderMatchRow).join("")}</div>
+      `;
+    }
+
+    function renderGroups() {
+      const groups = [...new Set(DATA.partidos.filter((match) => match.group).map((match) => match.group))].sort();
+      if (!groups.length) return `<div class="empty">Todavia no hay grupos cargados.</div>`;
+      return `
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px">
+          ${groups.map((group) => renderGroupTable(group)).join("")}
+        </div>
+      `;
+    }
+
+    function renderGroupTable(group) {
+      const table = standings(group);
+      return `
+        <div class="card">
+          <table>
+            <thead><tr><th colspan="8" style="color:var(--gold-bright)">Grupo ${escapeHtml(group)}</th></tr></thead>
+            <tbody>
+              <tr><th>#</th><th>Seleccion</th><th class="num">PJ</th><th class="num">G</th><th class="num">E</th><th class="num">P</th><th class="num">DG</th><th class="num">Pts</th></tr>
+              ${table.map((row, index) => `
+                <tr>
+                  <td class="dim">${index + 1}</td>
+                  <td class="team-name">${escapeHtml(row.team)}</td>
+                  <td class="num">${row.PJ}</td>
+                  <td class="num">${row.G}</td>
+                  <td class="num">${row.E}</td>
+                  <td class="num">${row.P}</td>
+                  <td class="num">${row.GF - row.GC}</td>
+                  <td class="num gold">${row.Pts}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderMatches() {
+      const matches = DATA.partidos
+        .filter((match) => match.ronda === "grupos")
+        .filter((match) => !groupFilter || match.group === groupFilter)
+        .filter((match) => !roundFilter || Number(match.roundnumber) === Number(roundFilter));
+      const groups = [...new Set(DATA.partidos.filter((match) => match.group).map((match) => match.group))].sort();
+      const byDate = groupBy(matches, (match) => match.fecha || "Sin fecha");
+      return `
+        <div class="toolbar">
+          <span class="toolbar-label">Jornada</span>
+          ${[0, 1, 2, 3].map((round) => buttonFilter("round", String(round), round ? `J${round}` : "Todas", String(roundFilter))).join("")}
+          <span class="toolbar-label" style="margin-left:8px">Grupo</span>
+          ${buttonFilter("group", "", "Todos", groupFilter)}
+          ${groups.map((group) => buttonFilter("group", group, group, groupFilter)).join("")}
+        </div>
+        ${matches.length ? Object.entries(byDate).map(([date, rows]) => `
+          <div class="date-title">${escapeHtml(date)}</div>
+          <div class="stack">${rows.map(renderMatchRow).join("")}</div>
+        `).join("") : `<div class="empty">No hay partidos con esos filtros.</div>`}
+      `;
+    }
+
+    function renderMatchRow(match) {
+      const homeScore = scoreValue(match.home_score_90 ?? match.home_score);
+      const awayScore = scoreValue(match.away_score_90 ?? match.away_score);
+      const score = homeScore === null || awayScore === null ? "vs" : `${homeScore}-${awayScore}`;
+      return `
+        <div class="match-row">
+          <div class="match-date">${escapeHtml(match.fecha || "")}<br>${escapeHtml(match.group ? `Grupo ${match.group}` : ROUND_LABEL[match.ronda] || match.ronda || "")}</div>
+          <div class="home">${escapeHtml(match.home_team || "")}</div>
+          <div class="result">${score}</div>
+          <div class="away">${escapeHtml(match.away_team || "")}</div>
+        </div>
+      `;
+    }
+
+    function renderBombos() {
+      return `
+        <div class="card" style="overflow-x:auto">
+          <table style="min-width:640px">
+            <thead><tr>${[1, 2, 3, 4].map((bombo) => `<th class="center pot-${bombo}">Bombo ${bombo}</th>`).join("")}</tr></thead>
+            <tbody>
+              ${BOMBOS.map((row) => `
+                <tr>${row.map((team, index) => `<td class="center pot-${index + 1}">${escapeHtml(team)}</td>`).join("")}</tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+        <p class="section-note" style="margin-top:10px">* Repesca UEFA · ** Repesca intercontinental</p>
+      `;
+    }
+
+    function computeTeamScores() {
+      const teams = Object.entries(BOMBO_MAP).map(([team, bombo]) => ({
+        team,
+        bombo,
+        grupos: 0,
+        ko_resultado: 0,
+        ko_pase: 0,
+        total: 0,
+      }));
+      const byName = Object.fromEntries(teams.map((team) => [cleanTeam(team.team), team]));
+      DATA.partidos.forEach((match) => {
+        [match.home_team, match.away_team].forEach((teamName) => {
+          const row = byName[cleanTeam(teamName)];
+          if (!row) return;
+          const [gf, gc] = goalsFor(match, teamName, match.ronda !== "grupos");
+          const points = resultPoints(gf, gc);
+          if (match.ronda === "grupos") row.grupos += points;
+          else {
+            row.ko_resultado += points;
+            if (cleanTeam(match.pasa) === cleanTeam(teamName)) row.ko_pase += row.bombo;
+          }
+          row.total = row.grupos + row.ko_resultado + row.ko_pase;
+        });
+      });
+      return teams;
+    }
+
+    function standings(group) {
+      const rows = {};
+      DATA.partidos.filter((match) => match.group === group).forEach((match) => {
+        [match.home_team, match.away_team].forEach((team) => {
+          if (!rows[team]) rows[team] = { team, PJ: 0, G: 0, E: 0, P: 0, GF: 0, GC: 0, Pts: 0 };
+        });
+        const hs = scoreValue(match.home_score);
+        const as = scoreValue(match.away_score);
+        if (hs === null || as === null) return;
+        const home = rows[match.home_team];
+        const away = rows[match.away_team];
+        home.PJ++; away.PJ++;
+        home.GF += hs; home.GC += as;
+        away.GF += as; away.GC += hs;
+        if (hs > as) { home.G++; home.Pts += 3; away.P++; }
+        else if (as > hs) { away.G++; away.Pts += 3; home.P++; }
+        else { home.E++; away.E++; home.Pts++; away.Pts++; }
+      });
+      return Object.values(rows).sort((a, b) =>
+        b.Pts - a.Pts || (b.GF - b.GC) - (a.GF - a.GC) || b.GF - a.GF || a.team.localeCompare(b.team)
+      );
+    }
+
+    function bindEvents() {
+      document.querySelectorAll("[data-tab]").forEach((button) => {
+        button.addEventListener("click", () => {
+          activeTab = button.dataset.tab;
+          render();
+        });
+      });
+      document.querySelectorAll("[data-open]").forEach((button) => {
+        button.addEventListener("click", () => {
+          openAlias = openAlias === button.dataset.open ? null : button.dataset.open;
+          render();
+        });
+      });
+      document.querySelectorAll("[data-sort]").forEach((button) => {
+        button.addEventListener("click", () => {
+          selectionSort = button.dataset.sort;
+          render();
+        });
+      });
+      document.querySelectorAll("[data-bombo]").forEach((button) => {
+        button.addEventListener("click", () => {
+          selectionBombo = Number(button.dataset.bombo);
+          render();
+        });
+      });
+      document.querySelectorAll("[data-group]").forEach((button) => {
+        button.addEventListener("click", () => {
+          groupFilter = button.dataset.group;
+          render();
+        });
+      });
+      document.querySelectorAll("[data-round]").forEach((button) => {
+        button.addEventListener("click", () => {
+          roundFilter = Number(button.dataset.round);
+          render();
+        });
+      });
+      document.querySelectorAll("[data-koround]").forEach((button) => {
+        button.addEventListener("click", () => {
+          koRound = button.dataset.koround;
+          render();
+        });
+      });
+    }
+
+    function buttonFilter(kind, value, label, active) {
+      return `<button class="filter ${String(active) === String(value) ? "active" : ""}" data-${kind}="${escapeAttr(value)}">${escapeHtml(label)}</button>`;
+    }
+
+    function resultPoints(gf, gc) {
+      if (gf === null || gc === null) return 0;
+      if (gf > gc) return 3;
+      if (gf === gc) return 1;
+      return 0;
+    }
+
+    function goalsFor(match, team, use90) {
+      const home = scoreValue(use90 ? match.home_score_90 : match.home_score);
+      const away = scoreValue(use90 ? match.away_score_90 : match.away_score);
+      if (match.home_team === team) return [home, away];
+      return [away, home];
+    }
+
+    function getBombo(team) {
+      return BOMBO_MAP[cleanTeam(team)] || 0;
+    }
+
+    function cleanTeam(team) {
+      return String(team || "").replace(/\*+/g, "").trim();
+    }
+
+    function scoreValue(value) {
+      return value === null || value === undefined || value === "" ? null : Number(value);
+    }
+
+    function groupBy(items, fn) {
+      return items.reduce((acc, item) => {
+        const key = fn(item);
+        (acc[key] = acc[key] || []).push(item);
+        return acc;
+      }, {});
+    }
+
     function escapeHtml(value) {
-      return String(value)
+      return String(value ?? "")
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
     }
+
+    function escapeAttr(value) {
+      return escapeHtml(value).replaceAll("`", "&#096;");
+    }
   </script>
 </body>
 </html>
-
