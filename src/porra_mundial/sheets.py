@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import csv
 import json
+from io import StringIO
 from typing import Any
+from urllib.request import urlopen
 
 
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
@@ -21,6 +24,18 @@ FIELD_ALIASES = {
 }
 
 
+def load_public_tsv_inputs(*, tsv_url: str, seed: dict[str, Any]) -> dict[str, Any]:
+    """Lee una pestaña publicada como TSV y devuelve datos sanitizados."""
+    rows = _rows_to_dicts(_read_tsv_url(tsv_url))
+    output = dict(seed)
+    output["participantes"] = [
+        _sanitize_participant(row)
+        for row in rows
+        if _has_public_pick_data(row)
+    ]
+    return output
+
+
 def load_sheet_inputs(
     *,
     spreadsheet_id: str,
@@ -29,7 +44,7 @@ def load_sheet_inputs(
     quinielas_range: str,
     overrides_range: str,
 ) -> dict[str, Any]:
-    """Lee Google Sheets y devuelve solo datos aptos para el motor publico."""
+    """Lee Google Sheets privado y devuelve solo datos aptos para el motor."""
     values = _read_ranges(
         spreadsheet_id=spreadsheet_id,
         service_account_json=service_account_json,
@@ -75,6 +90,12 @@ def _read_ranges(
     }
 
 
+def _read_tsv_url(tsv_url: str) -> list[list[str]]:
+    with urlopen(tsv_url, timeout=30) as response:
+        raw = response.read().decode("utf-8-sig")
+    return list(csv.reader(StringIO(raw), delimiter="\t"))
+
+
 def _rows_to_dicts(values: list[list[str]]) -> list[dict[str, str]]:
     if not values:
         return []
@@ -82,7 +103,10 @@ def _rows_to_dicts(values: list[list[str]]) -> list[dict[str, str]]:
     rows = []
     for raw_row in values[1:]:
         padded = raw_row + [""] * (len(headers) - len(raw_row))
-        row = {headers[index]: value.strip() for index, value in enumerate(padded[: len(headers)])}
+        row = {
+            headers[index]: value.strip()
+            for index, value in enumerate(padded[: len(headers)])
+        }
         rows.append(row)
     return rows
 
@@ -122,5 +146,19 @@ def _parse_bool(value: str) -> bool:
 
 def _normalize_header(value: str) -> str:
     normalized = value.casefold().strip()
-    replacements = str.maketrans({"á": "a", "é": "e", "í": "i", "ó": "o", "ú": "u"})
+    replacements = str.maketrans(
+        {
+            "á": "a",
+            "é": "e",
+            "í": "i",
+            "ó": "o",
+            "ú": "u",
+            "à": "a",
+            "è": "e",
+            "ì": "i",
+            "ò": "o",
+            "ù": "u",
+            "ü": "u",
+        }
+    )
     return " ".join(normalized.translate(replacements).split())

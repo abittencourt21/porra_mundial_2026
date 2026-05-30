@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 
 from .scoring import build_datos_json
-from .sheets import load_sheet_inputs
+from .sheets import load_public_tsv_inputs, load_sheet_inputs
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -40,17 +40,22 @@ def _load_seed(path: Path) -> dict:
 
 
 def _load_inputs() -> dict:
+    seed = _load_seed(ROOT / "data" / "seed.json")
+    public_tsv_url = os.getenv("GOOGLE_SHEET_TSV_URL")
+    if public_tsv_url:
+        return load_public_tsv_inputs(tsv_url=public_tsv_url, seed=seed)
+
     sheet_id = os.getenv("GOOGLE_SHEET_ID")
     service_account_json = os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON")
     if sheet_id and service_account_json:
         return load_sheet_inputs(
             spreadsheet_id=sheet_id,
             service_account_json=service_account_json,
-            seed=_load_seed(ROOT / "data" / "seed.json"),
+            seed=seed,
             quinielas_range=os.getenv("GOOGLE_QUINIELAS_RANGE", "quinielas!A:Z"),
             overrides_range=os.getenv("GOOGLE_OVERRIDES_RANGE", "overrides!A:Z"),
         )
-    return _load_seed(ROOT / "data" / "seed.json")
+    return seed
 
 
 if __name__ == "__main__":
