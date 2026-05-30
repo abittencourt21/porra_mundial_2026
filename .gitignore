@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+
+# Datos privados/exportaciones locales
+data/quinielas.local.*
+data/overrides.local.*
+.env
+

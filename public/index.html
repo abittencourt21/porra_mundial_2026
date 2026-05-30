@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Porra Mundial 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #151515;
+      --surface2: #1d1d1d;
+      --line: #2a2a2a;
+      --white: #f5f5f5;
+      --muted: #9a9a9a;
+      --dim: #5c5c5c;
+      --gold: #c8a24b;
+      --gold-bright: #e6c766;
+      --gold-dim: #8a7234;
+      --can: #c8102e;
+      --mex: #00833e;
+      --usa: #0a3161;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--white);
+      font-family: "Barlow", sans-serif;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(200, 16, 46, .22), transparent 32rem),
+        radial-gradient(circle at 80% 0%, rgba(10, 49, 97, .34), transparent 34rem),
+        linear-gradient(150deg, #050505, #101010 58%, #07120c);
+    }
+
+    main {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 22px;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+
+    .emblem {
+      display: grid;
+      place-items: center;
+      width: 82px;
+      height: 82px;
+      border: 2px solid var(--gold);
+      border-radius: 20px;
+      color: var(--gold-bright);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 46px;
+      font-weight: 800;
+      background: linear-gradient(145deg, rgba(200, 162, 75, .18), rgba(255, 255, 255, .03));
+      box-shadow: 0 24px 80px rgba(0, 0, 0, .35);
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: clamp(44px, 8vw, 86px);
+      line-height: .86;
+      letter-spacing: -.03em;
+      text-transform: uppercase;
+    }
+
+    .subtitle {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.4fr .8fr;
+      gap: 18px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      padding: 22px;
+      background: color-mix(in srgb, var(--surface) 88%, transparent);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 24px 70px rgba(0, 0, 0, .24);
+    }
+
+    .card h2 {
+      margin: 0 0 16px;
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 34px;
+      text-transform: uppercase;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 13px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+    }
+
+    th {
+      color: var(--gold-bright);
+      font-size: 13px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    td:last-child, th:last-child { text-align: right; }
+
+    .muted { color: var(--muted); }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border: 1px solid var(--gold-dim);
+      border-radius: 999px;
+      color: var(--gold-bright);
+      background: rgba(200, 162, 75, .09);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .teams {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .team {
+      padding: 6px 9px;
+      border-radius: 10px;
+      color: var(--white);
+      background: var(--surface2);
+      font-size: 13px;
+    }
+
+    .status {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      color: var(--muted);
+    }
+
+    .error {
+      color: #ffb4b4;
+    }
+
+    @media (max-width: 820px) {
+      header, .grid { grid-template-columns: 1fr; }
+      .emblem { width: 70px; height: 70px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="emblem">26</div>
+      <div>
+        <h1>Porra Mundial 2026</h1>
+        <p class="subtitle">Clasificacion viva, selecciones elegidas y bonus finales.</p>
+      </div>
+    </header>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Clasificacion</h2>
+        <div id="ranking" class="muted">Cargando datos...</div>
+      </article>
+      <aside class="card">
+        <h2>Estado</h2>
+        <div id="status" class="status">Cargando...</div>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    const rankingEl = document.querySelector("#ranking");
+    const statusEl = document.querySelector("#status");
+
+    fetch("datos.json")
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();
+      })
+      .then(render)
+      .catch((error) => {
+        rankingEl.innerHTML = `<p class="error">No se pudo cargar datos.json: ${error.message}</p>`;
+        statusEl.textContent = "Pendiente de generar datos.";
+      });
+
+    function render(data) {
+      const rows = data.participantes.map((p, index) => `
+        <tr>
+          <td>
+            <strong>${index + 1}. ${escapeHtml(p.alias)}</strong>
+            <div class="teams">${p.equipos.map((team) => `<span class="team">${escapeHtml(team)}</span>`).join("")}</div>
+          </td>
+          <td>${p.desglose.grupos}</td>
+          <td>${p.desglose.playoffs_resultado + p.desglose.playoffs_pase}</td>
+          <td>${p.desglose.bonus_final}</td>
+          <td><span class="pill">${p.puntos_total} pts</span></td>
+        </tr>
+      `).join("");
+
+      rankingEl.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Participante</th>
+              <th>Grupos</th>
+              <th>KO</th>
+              <th>Bonus</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+
+      statusEl.innerHTML = `
+        <span><strong>Estado:</strong> ${escapeHtml(data.meta.estado_torneo)}</span>
+        <span><strong>Fuente:</strong> ${escapeHtml(data.meta.fuente)}</span>
+        <span><strong>Actualizado:</strong> ${escapeHtml(data.meta.ultima_actualizacion)}</span>
+        <span><strong>Partidos:</strong> ${data.partidos.length}</span>
+      `;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+  </script>
+</body>
+</html>
+
