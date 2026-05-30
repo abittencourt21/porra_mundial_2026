@@ -3,9 +3,11 @@ name = "porra-mundial-2026"
 version = "0.1.0"
 description = "Motor y front estatico para la porra del Mundial 2026."
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+  "google-api-python-client>=2.0",
+  "google-auth>=2.0",
+]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
-
