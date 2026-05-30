@@ -1,5 +1,7 @@
 # Reglas de la Porra Mundial 2026
 
+![Porra Mundial 2026](public/world-cup-2026-hero.svg)
+
 Esta porra consiste en elegir selecciones del Mundial 2026 y sumar puntos segun
 su rendimiento durante el torneo.
 
@@ -19,6 +21,28 @@ Cada participante debe completar una quiniela con:
 - Pichichi o Bota de Oro.
 
 El plazo de registro termina el **11/06/2026 a las 20:00 CET**.
+
+## Bombos
+
+Cada participante debe elegir una seleccion de cada bombo.
+
+| Bombo 1 | Bombo 2 | Bombo 3 | Bombo 4 |
+|---|---|---|---|
+| 🇺🇸 Estados Unidos | 🇭🇷 Croacia | 🇳🇴 Noruega | 🇯🇴 Jordania |
+| 🇨🇦 Canadá | 🇲🇦 Marruecos | 🇵🇦 Panamá | 🇨🇻 Cabo Verde |
+| 🇲🇽 México | 🇨🇴 Colombia | 🇪🇬 Egipto | 🇬🇭 Ghana |
+| 🇪🇸 España | 🇺🇾 Uruguay | 🇩🇿 Argelia | 🇨🇼 Curazao |
+| 🇦🇷 Argentina | 🇨🇭 Suiza | 🇬🇧 Escocia | 🇭🇹 Haití |
+| 🇫🇷 Francia | 🇯🇵 Japón | 🇵🇾 Paraguay | 🇳🇿 Nueva Zelanda |
+| 🇬🇧 Inglaterra | 🇸🇳 Senegal | 🇹🇳 Túnez | 🇧🇦 Bosnia y Herzegovina* |
+| 🇧🇷 Brasil | 🇮🇷 Irán | 🇨🇮 Costa de Marfil | 🇨🇿 Chequia* |
+| 🇵🇹 Portugal | 🇰🇷 Corea del Sur | 🇺🇿 Uzbekistán | 🇹🇷 Turquía* |
+| 🇳🇱 Países Bajos | 🇪🇨 Ecuador | 🇶🇦 Catar | 🇸🇪 Suecia* |
+| 🇧🇪 Bélgica | 🇦🇹 Austria | 🇸🇦 Arabia Saudí | 🇨🇩 RD Congo** |
+| 🇩🇪 Alemania | 🇦🇺 Australia | 🇿🇦 Sudáfrica | 🇮🇶 Irak** |
+
+Las selecciones marcadas con `*` o `**` mantienen la referencia indicada en el
+listado de bombos original.
 
 ## Cuota y Premios
 
@@ -133,4 +157,3 @@ Tu puntuacion sale de:
 - Los resultados de tus 4 selecciones en eliminatorias, siempre a 90 minutos.
 - Los bonus por cada ronda que superen tus selecciones.
 - Los bonus finales de campeon, subcampeon y pichichi.
-
