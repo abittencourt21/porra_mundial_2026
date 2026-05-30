@@ -11,5 +11,13 @@ build/
 # Datos privados/exportaciones locales
 data/quinielas.local.*
 data/overrides.local.*
+public/datos.json
 .env
+
+# Credenciales de integraciones
+*.pem
+*.key
+service-account*.json
+credentials*.json
+token*.json
 
