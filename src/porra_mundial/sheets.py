@@ -12,7 +12,7 @@ SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
 
 FIELD_ALIASES = {
     "timestamp": {"timestamp", "marca temporal", "fecha"},
-    "alias": {"alias", "apodo", "nombre visible"},
+    "alias": {"alias", "alias publico", "alias público", "apodo", "nombre visible"},
     "equipo_bombo_1": {"equipo del bombo 1", "bombo 1", "equipo bombo 1"},
     "equipo_bombo_2": {"equipo del bombo 2", "bombo 2", "equipo bombo 2"},
     "equipo_bombo_3": {"equipo del bombo 3", "bombo 3", "equipo bombo 3"},
