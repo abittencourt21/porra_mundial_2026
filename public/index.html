@@ -107,9 +107,9 @@
 
     .brand-emblem {
       position: absolute;
-      left: clamp(18px, 5vw, 62px);
+      left: clamp(14px, 3.2vw, 36px);
       top: 50%;
-      width: clamp(96px, 18vw, 170px);
+      width: clamp(82px, 14vw, 138px);
       aspect-ratio: 1;
       transform: translateY(-50%);
       border-radius: 18px;
@@ -754,6 +754,10 @@
     @media (max-width: 760px) {
       .brand { align-items: flex-start; }
       .host-dots { display: none; }
+      .brand-emblem {
+        left: 14px;
+        width: clamp(70px, 18vw, 96px);
+      }
       .tabs { top: 0; }
       .hero { grid-template-columns: 1fr; }
       .hero-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -769,6 +773,7 @@
     }
 
     @media (max-width: 520px) {
+      .brand-emblem { display: none; }
       .hero-stats { grid-template-columns: 1fr; }
     }
   </style>
@@ -922,7 +927,7 @@
     const ROUND_ORDER = { R32: 1, R16: 2, QF: 3, SF: 4, "3RD": 5, F: 6 };
 
     let DATA = null;
-    let activeTab = "porra";
+    let activeTab = "reglas";
     let openAlias = null;
     let selectionBombo = 0;
     let selectionGroup = "";
