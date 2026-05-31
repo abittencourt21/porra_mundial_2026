@@ -504,6 +504,7 @@
 
     .rules {
       display: grid;
+      grid-template-columns: repeat(12, 1fr);
       gap: 14px;
     }
 
@@ -513,6 +514,67 @@
       padding: 16px;
       background: rgba(21, 21, 21, .92);
     }
+
+    .rules-hero {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 18px;
+      align-items: center;
+      border: 1px solid var(--gold-dim);
+      border-radius: 16px;
+      padding: 18px;
+      background:
+        linear-gradient(135deg, rgba(200, 162, 75, .18), rgba(10,10,10,.82)),
+        var(--surface);
+    }
+
+    .rules-hero h2 {
+      color: var(--white);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: clamp(34px, 6vw, 58px);
+      line-height: .92;
+      text-transform: uppercase;
+    }
+
+    .rules-hero p {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .rules-kpi {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .rules-kpi div {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      background: rgba(0,0,0,.28);
+    }
+
+    .rules-kpi strong {
+      display: block;
+      color: var(--gold-bright);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .rules-kpi span {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+    }
+
+    .rules-wide { grid-column: span 8; }
+    .rules-side { grid-column: span 4; }
+    .rules-half { grid-column: span 6; }
+    .rules-full { grid-column: 1 / -1; }
 
     .rules-block h2 {
       margin-bottom: 8px;
@@ -530,6 +592,45 @@
 
     .rules-block ul {
       margin-left: 18px;
+    }
+
+    .rules-table {
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .rules-table td, .rules-table th {
+      padding: 8px 10px;
+    }
+
+    .points-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .point-card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      background: #101010;
+      text-align: center;
+    }
+
+    .point-card strong {
+      display: block;
+      color: var(--gold-bright);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 34px;
+      line-height: 1;
+    }
+
+    .point-card span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
     }
 
     .empty {
@@ -557,6 +658,9 @@
       .breakdown { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .match-row { grid-template-columns: 1fr auto 1fr; }
       .match-date { display: none; }
+      .rules, .rules-hero { grid-template-columns: 1fr; }
+      .rules-wide, .rules-side, .rules-half { grid-column: 1 / -1; }
+      .points-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -1027,39 +1131,139 @@
     function renderRules() {
       return `
         <div class="rules">
-          <div class="rules-block">
-            <h2>Como se participa</h2>
-            <p>Cada participante elige una seleccion de cada bombo, mas campeon, subcampeon y pichichi. El alias es el nombre visible en la clasificacion publica.</p>
-          </div>
-          <div class="rules-block">
+          <section class="rules-hero">
+            <div>
+              <p class="eyebrow">Reglamento oficial</p>
+              <h2>Reglas de la porra</h2>
+              <p>Elige cuatro selecciones, una por bombo, y suma puntos segun avancen en el Mundial 2026. La clasificacion publica muestra el alias de cada participante.</p>
+            </div>
+            <div class="rules-kpi">
+              <div><strong>10&euro;</strong><span>Cuota de participacion</span></div>
+              <div><strong>4</strong><span>Selecciones por persona</span></div>
+              <div><strong>80/20</strong><span>Reparto del bote</span></div>
+              <div><strong>11/06</strong><span>Cierre de registro</span></div>
+            </div>
+          </section>
+
+          <section class="rules-block rules-wide">
+            <h2>Inscripcion</h2>
+            <p>Cada quiniela debe incluir los datos necesarios para identificar la participacion y calcular los puntos durante el torneo.</p>
+            <div class="points-grid">
+              <div class="point-card"><strong>Identidad</strong><span>Nombre real, alias publico y email de contacto.</span></div>
+              <div class="point-card"><strong>Equipos</strong><span>Una seleccion del Bombo 1, 2, 3 y 4.</span></div>
+              <div class="point-card"><strong>Finales</strong><span>Campeon, subcampeon y pichichi o Bota de Oro.</span></div>
+            </div>
+            <p style="margin-top:12px">El plazo de registro termina el <strong>11/06/2026 a las 20:00 CET</strong>.</p>
+          </section>
+
+          <section class="rules-block rules-side">
             <h2>Cuota y premios</h2>
-            <p>La cuota es de 10 euros por participante. El bote se reparte con 80% para el primer clasificado y 20% para el segundo.</p>
-          </div>
-          <div class="rules-block">
+            <ul>
+              <li>Cuota de participacion: <strong>10 euros</strong>.</li>
+              <li>Pago antes del inicio de la Jornada 2, el <strong>18/06/2026</strong>.</li>
+              <li>Si no se paga a tiempo, la quiniela queda anulada.</li>
+              <li>El bote se reparte: 80% para el primero y 20% para el segundo.</li>
+            </ul>
+          </section>
+
+          <section class="rules-block rules-half">
+            <h2>Bombos</h2>
+            <p>Cada participante debe elegir una seleccion de cada bombo. Puedes consultar el listado completo en la pesta&ntilde;a <strong>Bombos</strong>.</p>
+            <table class="rules-table">
+              <thead><tr><th>Bombo</th><th>Eleccion</th></tr></thead>
+              <tbody>
+                <tr><td>Bombo 1</td><td>1 seleccion</td></tr>
+                <tr><td>Bombo 2</td><td>1 seleccion</td></tr>
+                <tr><td>Bombo 3</td><td>1 seleccion</td></tr>
+                <tr><td>Bombo 4</td><td>1 seleccion</td></tr>
+              </tbody>
+            </table>
+          </section>
+
+          <section class="rules-block rules-half">
             <h2>Restriccion de equipos</h2>
-            <p>Dos participantes no pueden coincidir en 3 o mas de sus 4 selecciones. Si ocurre, tiene prioridad la quiniela enviada antes.</p>
-          </div>
-          <div class="rules-block">
-            <h2>Puntuacion</h2>
+            <p>Para que las quinielas sean variadas, dos participantes no pueden coincidir en 3 o mas de sus 4 selecciones.</p>
             <ul>
-              <li>Fase de grupos: victoria 3 puntos, empate 1, derrota 0.</li>
-              <li>Eliminatorias: se puntua el resultado a los 90 minutos con la misma regla 3/1/0.</li>
-              <li>La prorroga y los penaltis no cambian los puntos por resultado.</li>
+              <li>Si dos quinielas coinciden en 3 o 4 equipos, tiene prioridad la enviada primero.</li>
+              <li>La segunda persona tendra que rehacer su combinacion.</li>
             </ul>
-          </div>
-          <div class="rules-block">
+          </section>
+
+          <section class="rules-block rules-wide">
+            <h2>Puntos por partido</h2>
+            <p>Tus cuatro selecciones suman puntos por cada partido disputado. En eliminatorias solo cuenta el marcador a los 90 minutos.</p>
+            <div class="points-grid">
+              <div class="point-card"><strong>3</strong><span>Victoria</span></div>
+              <div class="point-card"><strong>1</strong><span>Empate</span></div>
+              <div class="point-card"><strong>0</strong><span>Derrota</span></div>
+            </div>
+            <p style="margin-top:12px">La prorroga y los penaltis no cambian los puntos por resultado. Si tu seleccion empata a los 90 minutos y gana en penaltis, suma 1 punto por el partido.</p>
+          </section>
+
+          <section class="rules-block rules-side">
+            <h2>Rondas con bonus</h2>
+            <ul>
+              <li>Dieciseisavos de final.</li>
+              <li>Octavos de final.</li>
+              <li>Cuartos de final.</li>
+              <li>Semifinal.</li>
+              <li>Final.</li>
+            </ul>
+            <p>Ganar la final tambien cuenta como superar ronda.</p>
+          </section>
+
+          <section class="rules-block rules-half">
             <h2>Bonus por pasar ronda</h2>
-            <p>Cada seleccion suma un extra cada vez que supera una ronda eliminatoria: Bombo 1 +1, Bombo 2 +2, Bombo 3 +3 y Bombo 4 +4.</p>
-          </div>
-          <div class="rules-block">
+            <table class="rules-table">
+              <thead><tr><th>Bombo original</th><th>Extra por ronda</th></tr></thead>
+              <tbody>
+                <tr><td>Bombo 1</td><td>+1 punto</td></tr>
+                <tr><td>Bombo 2</td><td>+2 puntos</td></tr>
+                <tr><td>Bombo 3</td><td>+3 puntos</td></tr>
+                <tr><td>Bombo 4</td><td>+4 puntos</td></tr>
+              </tbody>
+            </table>
+            <p>Ejemplo: una seleccion del Bombo 4 que gana el Mundial puede sumar hasta 20 puntos extra solo por rondas superadas.</p>
+          </section>
+
+          <section class="rules-block rules-half">
             <h2>Bonus finales</h2>
+            <table class="rules-table">
+              <thead><tr><th>Acierto</th><th>Puntos</th></tr></thead>
+              <tbody>
+                <tr><td>Campeon acertado</td><td>+10</td></tr>
+                <tr><td>Subcampeon acertado</td><td>+5</td></tr>
+                <tr><td>Pichichi acertado</td><td>+7</td></tr>
+                <tr><td>Campeon real entre tus 4 equipos</td><td>+6</td></tr>
+              </tbody>
+            </table>
+            <p>El bonus de campeon acertado y el bonus de campeon entre tus 4 equipos no se acumulan entre si.</p>
+          </section>
+
+          <section class="rules-block rules-half">
+            <h2>Pichichi</h2>
+            <p>Para el pichichi cuenta la <strong>Bota de Oro oficial de la FIFA</strong>.</p>
             <ul>
-              <li>Campeon acertado: +10.</li>
-              <li>Subcampeon acertado: +5.</li>
-              <li>Pichichi acertado: +7.</li>
-              <li>Si el campeon real esta entre tus 4 equipos pero no lo marcaste como campeon: +6.</li>
+              <li>Primero se comparan goles.</li>
+              <li>Si hay empate, se comparan asistencias.</li>
+              <li>Si sigue el empate, gana quien haya jugado menos minutos.</li>
             </ul>
-          </div>
+          </section>
+
+          <section class="rules-block rules-half">
+            <h2>Desempates</h2>
+            <p>Si dos participantes terminan empatados a puntos, se aplicaran los criterios de desempate que se comuniquen antes del inicio del torneo.</p>
+          </section>
+
+          <section class="rules-block rules-full">
+            <h2>Resumen rapido</h2>
+            <div class="points-grid">
+              <div class="point-card"><strong>1</strong><span>Resultados de tus selecciones en fase de grupos.</span></div>
+              <div class="point-card"><strong>2</strong><span>Resultados de tus selecciones en eliminatorias a 90 minutos.</span></div>
+              <div class="point-card"><strong>3</strong><span>Bonus por cada ronda que superen tus equipos.</span></div>
+              <div class="point-card"><strong>4</strong><span>Bonus finales por campeon, subcampeon y pichichi.</span></div>
+            </div>
+          </section>
         </div>
       `;
     }
