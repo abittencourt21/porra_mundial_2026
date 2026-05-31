@@ -1,0 +1,75 @@
+﻿type,matchid,group,roundnumber,ronda,fecha,home_team,away_team,home_score,away_score,home_score_90,away_score_90,pasa,status,estado_torneo,campeon,subcampeon,pichichi_nombre,pichichi_goles,jugador,goles,notas
+meta,,,,,,,,,,,,,,pre,,,,0,,,Fila opcional de estado global. Borra valores que no quieras forzar.
+goleador,,,,,,,,,,,,,,,,,,,,,Fila ejemplo opcional. Duplica para meter goleadores manuales.
+match,1,A,1,grupos,11.06.2026,México,Sudáfrica,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,2,A,1,grupos,11.06.2026,Corea del Sur,Chequia,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,3,B,1,grupos,12.06.2026,Canadá,Bosnia y Herzegovina,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,4,D,1,grupos,12.06.2026,Estados Unidos,Paraguay,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,5,B,1,grupos,13.06.2026,Catar,Suiza,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,6,C,1,grupos,13.06.2026,Brasil,Marruecos,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,7,C,1,grupos,13.06.2026,Haití,Escocia,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,8,D,1,grupos,13.06.2026,Australia,Turquía,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,9,E,1,grupos,14.06.2026,Alemania,Curazao,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,10,F,1,grupos,14.06.2026,Países Bajos,Japón,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,11,E,1,grupos,14.06.2026,Costa de Marfil,Ecuador,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,12,F,1,grupos,14.06.2026,Suecia,Túnez,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,13,H,1,grupos,15.06.2026,España,Cabo Verde,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,14,G,1,grupos,15.06.2026,Bélgica,Egipto,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,15,H,1,grupos,15.06.2026,Arabia Saudí,Uruguay,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,16,G,1,grupos,15.06.2026,Irán,Nueva Zelanda,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,17,I,1,grupos,16.06.2026,Francia,Senegal,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,18,I,1,grupos,16.06.2026,Irak,Noruega,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,19,J,1,grupos,16.06.2026,Argentina,Argelia,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,20,J,1,grupos,16.06.2026,Austria,Jordania,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,21,K,1,grupos,17.06.2026,Portugal,RD Congo,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,22,L,1,grupos,17.06.2026,Inglaterra,Croacia,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,23,L,1,grupos,17.06.2026,Ghana,Panamá,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,24,K,1,grupos,17.06.2026,Uzbekistán,Colombia,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,25,A,2,grupos,18.06.2026,Chequia,Sudáfrica,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,26,B,2,grupos,18.06.2026,Suiza,Bosnia y Herzegovina,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,27,B,2,grupos,18.06.2026,Canadá,Catar,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,28,A,2,grupos,18.06.2026,México,Corea del Sur,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,29,D,2,grupos,19.06.2026,Estados Unidos,Australia,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,30,C,2,grupos,19.06.2026,Escocia,Marruecos,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,31,C,2,grupos,19.06.2026,Brasil,Haití,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,32,D,2,grupos,19.06.2026,Turquía,Paraguay,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,33,F,2,grupos,20.06.2026,Países Bajos,Suecia,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,34,E,2,grupos,20.06.2026,Alemania,Costa de Marfil,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,35,E,2,grupos,20.06.2026,Ecuador,Curazao,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,36,F,2,grupos,20.06.2026,Túnez,Japón,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,37,H,2,grupos,21.06.2026,España,Arabia Saudí,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,38,G,2,grupos,21.06.2026,Bélgica,Irán,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,39,H,2,grupos,21.06.2026,Uruguay,Cabo Verde,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,40,G,2,grupos,21.06.2026,Nueva Zelanda,Egipto,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,41,J,2,grupos,22.06.2026,Argentina,Austria,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,42,I,2,grupos,22.06.2026,Francia,Irak,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,43,I,2,grupos,22.06.2026,Noruega,Senegal,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,44,J,2,grupos,22.06.2026,Jordania,Argelia,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,45,K,2,grupos,23.06.2026,Portugal,Uzbekistán,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,46,L,2,grupos,23.06.2026,Inglaterra,Ghana,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,47,L,2,grupos,23.06.2026,Panamá,Croacia,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,48,K,2,grupos,23.06.2026,Colombia,RD Congo,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,49,B,3,grupos,24.06.2026,Suiza,Canadá,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,50,B,3,grupos,24.06.2026,Bosnia y Herzegovina,Catar,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,51,C,3,grupos,24.06.2026,Escocia,Brasil,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,52,C,3,grupos,24.06.2026,Marruecos,Haití,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,53,A,3,grupos,24.06.2026,Chequia,México,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,54,A,3,grupos,24.06.2026,Sudáfrica,Corea del Sur,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,55,E,3,grupos,25.06.2026,Ecuador,Alemania,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,56,E,3,grupos,25.06.2026,Curazao,Costa de Marfil,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,57,F,3,grupos,25.06.2026,Japón,Suecia,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,58,F,3,grupos,25.06.2026,Túnez,Países Bajos,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,59,D,3,grupos,25.06.2026,Turquía,Estados Unidos,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,60,D,3,grupos,25.06.2026,Paraguay,Australia,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,61,I,3,grupos,26.06.2026,Noruega,Francia,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,62,I,3,grupos,26.06.2026,Senegal,Irak,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,63,H,3,grupos,26.06.2026,Cabo Verde,Arabia Saudí,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,64,H,3,grupos,26.06.2026,Uruguay,España,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,65,G,3,grupos,26.06.2026,Egipto,Irán,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,66,G,3,grupos,26.06.2026,Nueva Zelanda,Bélgica,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,67,L,3,grupos,27.06.2026,Panamá,Inglaterra,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,68,L,3,grupos,27.06.2026,Croacia,Ghana,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,69,K,3,grupos,27.06.2026,Colombia,Portugal,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,70,K,3,grupos,27.06.2026,RD Congo,Uzbekistán,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,71,J,3,grupos,27.06.2026,Argelia,Austria,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.
+match,72,J,3,grupos,27.06.2026,Jordania,Argentina,,,,,,,,,,,,,,Rellena solo si quieres corregir este partido manualmente.

@@ -53,6 +53,76 @@ python -m unittest discover -s tests
 python -m porra_mundial.build_data --out public/datos.json
 ```
 
+Para generar datos leyendo la pestana publica del Google Sheet:
+
+```powershell
+$env:PYTHONPATH = "src"
+$env:GOOGLE_SHEET_TSV_URL = "https://docs.google.com/spreadsheets/d/e/.../pub?gid=...&single=true&output=tsv"
+$env:GOOGLE_OVERRIDES_TSV_URL = "https://docs.google.com/spreadsheets/d/e/.../pub?gid=...&single=true&output=tsv"
+$env:SPORTSDB_SEASON = "2026"
+python -m porra_mundial.build_data --out public/datos.json
+```
+
+`GOOGLE_OVERRIDES_TSV_URL` es opcional. Si la pestana `overrides` no tiene
+datos o no esta publicada, no hace falta configurarlo.
+
+Para revisar que TheSportsDB devuelve eventos del Mundial:
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m porra_mundial.probe_sportsdb --season 2026
+```
+
+## Actualizacion automatica
+
+El workflow `.github/workflows/build-data.yml` publica GitHub Pages cuando:
+
+- Hay un push a `main`.
+- Se lanza manualmente desde `Actions` -> `Build and deploy Pages` -> `Run workflow`.
+- Se ejecuta la programacion `17 * * * *`, es decir, cada hora en el minuto 17 UTC.
+
+Secrets recomendados en GitHub:
+
+- `GOOGLE_SHEET_TSV_URL`: URL publicada como TSV de la pestana saneada. Es la opcion recomendada y no requiere claves de Google Cloud.
+- `GOOGLE_OVERRIDES_TSV_URL`: URL publicada como TSV de la pestana `overrides`. Es opcional.
+- `GOOGLE_SHEET_ID` y `GOOGLE_SERVICE_ACCOUNT_JSON`: alternativa para leer un Sheet privado con service account.
+
+No hace falta una key de TheSportsDB con la configuracion actual; el codigo usa el endpoint publico `json/3`.
+
+## Overrides manuales
+
+La pestana `overrides` permite corregir datos sin tocar el codigo. Las columnas
+mas utiles son:
+
+- `type`: `match`, `meta` o `goleador`.
+- Para partidos: `matchid`, `home_team`, `away_team`, `fecha`, `home_score`, `away_score`, `home_score_90`, `away_score_90`, `pasa`, `status`.
+- Para torneo: `estado_torneo`, `campeon`, `subcampeon`, `pichichi_nombre`, `pichichi_goles`.
+- Para goleadores: `jugador`, `goles`.
+
+TheSportsDB usa nombres en ingles. El generador normaliza acentos y vincula
+selecciones ingles/espanol antes de actualizar resultados, por ejemplo
+`South Africa` con `Sudafrica`, `Spain` con `Espana` o `Netherlands` con
+`Paises Bajos`.
+
+Hay una plantilla lista para importar en Google Sheets:
+`data/overrides_template.csv`.
+
+Si cambia el calendario base, regenerala con:
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m porra_mundial.overrides_template --out data/overrides_template.csv
+```
+
+Uso recomendado:
+
+- Mantener siempre `type` y `matchid`; son la forma mas estable de localizar cada partido.
+- Dejar vacios `home_score`, `away_score`, `home_score_90`, `away_score_90`, `pasa` y `status` hasta que quieras forzar una correccion manual.
+- En fase de grupos basta con `home_score` y `away_score`; si se dejan vacios los campos a 90 minutos, el motor usa esos mismos valores.
+- En eliminatorias usa `home_score_90` y `away_score_90` para el resultado a 90 minutos, y `pasa` para indicar la seleccion clasificada.
+- Para cerrar torneo, usa una fila `type=meta` con `campeon`, `subcampeon`, `pichichi_nombre` y `pichichi_goles`.
+- Para goleadores, duplica una fila `type=goleador` y rellena `jugador` y `goles`.
+
 ## Estructura del repo
 
 - `public/`: sitio estatico para GitHub Pages.
