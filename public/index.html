@@ -9,21 +9,23 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0a0a0a;
-      --surface: #151515;
-      --surface2: #1d1d1d;
-      --line: #2a2a2a;
-      --gold: #c8a24b;
-      --gold-bright: #e6c766;
-      --gold-dim: #8a7234;
-      --white: #f5f5f5;
-      --muted: #9a9a9a;
-      --dim: #5c5c5c;
-      --can: #c8102e;
-      --mex: #00833e;
-      --usa: #0a3161;
-      --ok: #3fb950;
-      --bad: #ff8d8d;
+      --bg: #f4f7ff;
+      --surface: #ffffff;
+      --surface2: #eef3ff;
+      --line: #d8e1f2;
+      --gold: #c99a2e;
+      --gold-bright: #d9a72f;
+      --gold-dim: #b88923;
+      --white: #101c3d;
+      --muted: #5a6784;
+      --dim: #8390aa;
+      --can: #e1253b;
+      --mex: #00a66a;
+      --usa: #0057d8;
+      --navy: #081b46;
+      --sky: #00a3ff;
+      --ok: #00a66a;
+      --bad: #d8273f;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -33,21 +35,22 @@
       color: var(--white);
       font-family: "Barlow", system-ui, sans-serif;
       background:
-        radial-gradient(circle at 10% 0%, rgba(200, 16, 46, .16), transparent 34rem),
-        radial-gradient(circle at 92% 3%, rgba(10, 49, 97, .34), transparent 36rem),
-        radial-gradient(circle at 80% 100%, rgba(0, 131, 62, .18), transparent 30rem),
+        radial-gradient(circle at 8% 0%, rgba(225, 37, 59, .18), transparent 34rem),
+        radial-gradient(circle at 92% 2%, rgba(0, 87, 216, .22), transparent 36rem),
+        radial-gradient(circle at 75% 100%, rgba(0, 166, 106, .18), transparent 30rem),
+        linear-gradient(180deg, #ffffff 0%, #f4f7ff 38%, #eaf1ff 100%),
         var(--bg);
     }
 
     button { font: inherit; }
 
     .topbar {
-      position: sticky;
-      top: 0;
+      position: relative;
       z-index: 20;
-      border-bottom: 1px solid var(--gold-dim);
-      background: linear-gradient(180deg, #111, rgba(10, 10, 10, .96));
-      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(8, 27, 70, .08);
+      background:
+        linear-gradient(90deg, rgba(225,37,59,.16), rgba(0,166,106,.14), rgba(0,87,216,.16)),
+        #ffffff;
     }
 
     .wrap {
@@ -56,11 +59,10 @@
     }
 
     .brand {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 18px;
-      padding: 12px 0;
+      padding: 14px 0;
+      color: transparent;
+      font-size: 0;
+      line-height: 0;
     }
 
     .brand-left {
@@ -84,6 +86,47 @@
       font-weight: 800;
       letter-spacing: -1px;
       background: linear-gradient(135deg, #1a1a1a, #0a0a0a);
+    }
+
+    .brand-hero {
+      position: relative;
+      min-height: clamp(132px, 21vw, 230px);
+      border: 1px solid var(--gold-dim);
+      border-radius: 16px;
+      overflow: hidden;
+      background: var(--navy);
+      box-shadow: 0 18px 34px rgba(8, 27, 70, .16);
+    }
+
+    .brand-hero-bg {
+      display: block;
+      width: 100%;
+      height: clamp(132px, 21vw, 230px);
+      object-fit: cover;
+    }
+
+    .brand-emblem {
+      position: absolute;
+      left: clamp(18px, 5vw, 62px);
+      top: 50%;
+      width: clamp(96px, 18vw, 170px);
+      aspect-ratio: 1;
+      transform: translateY(-50%);
+      border-radius: 18px;
+      object-fit: cover;
+      box-shadow: 0 18px 34px rgba(8, 27, 70, .24);
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
     }
 
     .title {
@@ -127,10 +170,10 @@
 
     .tabs {
       position: sticky;
-      top: 61px;
+      top: 0;
       z-index: 19;
       border-bottom: 1px solid var(--line);
-      background: rgba(17, 17, 17, .96);
+      background: rgba(255, 255, 255, .92);
       backdrop-filter: blur(14px);
     }
 
@@ -156,8 +199,8 @@
     }
 
     .tab.active {
-      color: var(--gold-bright);
-      border-bottom-color: var(--gold);
+      color: var(--usa);
+      border-bottom-color: var(--usa);
     }
 
     main {
@@ -166,7 +209,7 @@
 
     .hero {
       display: grid;
-      grid-template-columns: 1.2fr auto;
+      grid-template-columns: minmax(0, 1fr) auto;
       gap: 18px;
       align-items: center;
       margin-bottom: 16px;
@@ -174,8 +217,9 @@
       border-radius: 14px;
       padding: 16px 18px;
       background:
-        linear-gradient(135deg, rgba(200, 162, 75, .14), rgba(10, 10, 10, .85)),
+        linear-gradient(135deg, rgba(0, 87, 216, .10), rgba(0, 166, 106, .08) 52%, rgba(225, 37, 59, .09)),
         var(--surface);
+      box-shadow: 0 18px 36px rgba(8, 27, 70, .10);
     }
 
     .hero h1 {
@@ -191,6 +235,43 @@
       color: var(--muted);
       font-size: 14px;
     }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(110px, 1fr));
+      gap: 10px;
+    }
+
+    .hero-stat {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      background: rgba(255,255,255,.72);
+    }
+
+    .hero-stat strong {
+      display: block;
+      color: var(--gold-bright);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: clamp(28px, 6vw, 42px);
+      line-height: .95;
+      white-space: nowrap;
+    }
+
+    .hero-stat.prize-split strong {
+      color: var(--usa);
+      font-size: clamp(26px, 4.6vw, 38px);
+    }
+
+    .hero-stat span {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .6px;
+      text-transform: uppercase;
+    }
+
+    .hero-stats p, .prize[hidden] { display: none; }
 
     .prize {
       text-align: right;
@@ -208,7 +289,8 @@
     .card {
       border: 1px solid var(--line);
       border-radius: 12px;
-      background: rgba(21, 21, 21, .92);
+      background: rgba(255, 255, 255, .92);
+      box-shadow: 0 12px 28px rgba(8, 27, 70, .08);
       overflow: hidden;
     }
 
@@ -226,6 +308,7 @@
       border-radius: 12px;
       background: var(--surface);
       overflow: hidden;
+      box-shadow: 0 12px 28px rgba(8, 27, 70, .07);
       transition: border-color .15s ease, transform .15s ease;
     }
 
@@ -277,7 +360,7 @@
       border-radius: 999px;
       padding: 3px 8px;
       color: var(--muted);
-      background: #101010;
+      background: #f8fbff;
       font-size: 11px;
       white-space: nowrap;
     }
@@ -320,7 +403,7 @@
       border: 1px solid var(--line);
       border-radius: 9px;
       padding: 8px 10px;
-      background: #101010;
+      background: var(--surface2);
     }
 
     .metric label {
@@ -348,7 +431,7 @@
       border: 1px solid var(--line);
       border-radius: 9px;
       padding: 10px;
-      background: #101010;
+      background: #f8fbff;
     }
 
     .team-card h3 {
@@ -374,8 +457,8 @@
 
     th {
       padding: 9px 8px;
-      color: var(--muted);
-      background: #111;
+      color: #ffffff;
+      background: var(--navy);
       font-size: 11px;
       font-weight: 700;
       letter-spacing: .8px;
@@ -396,6 +479,7 @@
     .team-name { color: var(--white); font-weight: 600; }
     .gold { color: var(--gold-bright); font-weight: 700; }
     .dim { color: var(--dim); }
+    .left { text-align: left; }
 
     .toolbar {
       display: flex;
@@ -428,9 +512,9 @@
     }
 
     .filter.active {
-      border-color: var(--gold);
-      color: var(--white);
-      background: var(--gold-dim);
+      border-color: var(--usa);
+      color: #ffffff;
+      background: var(--usa);
     }
 
     .match-row {
@@ -453,7 +537,7 @@
       border-radius: 7px;
       padding: 5px 8px;
       color: var(--gold-bright);
-      background: #0f0f0f;
+      background: #eef4ff;
       font-family: "Barlow Condensed", sans-serif;
       font-size: 18px;
       font-weight: 800;
@@ -480,10 +564,10 @@
       background: var(--line);
     }
 
-    .pot-1 { color: #c8a24b; }
-    .pot-2 { color: #b8b8b8; }
-    .pot-3 { color: #cd7f32; }
-    .pot-4 { color: #7da3d4; }
+    .pot-1 { color: var(--usa); }
+    .pot-2 { color: var(--mex); }
+    .pot-3 { color: var(--can); }
+    .pot-4 { color: var(--gold-dim); }
 
     .flag {
       width: 22px;
@@ -491,7 +575,7 @@
       object-fit: cover;
       border-radius: 3px;
       box-shadow: 0 0 0 1px rgba(255,255,255,.16);
-      background: #222;
+      background: var(--line);
       vertical-align: -2px;
     }
 
@@ -512,7 +596,8 @@
       border: 1px solid var(--line);
       border-radius: 12px;
       padding: 16px;
-      background: rgba(21, 21, 21, .92);
+      background: rgba(255, 255, 255, .94);
+      box-shadow: 0 12px 28px rgba(8, 27, 70, .08);
     }
 
     .rules-hero {
@@ -525,8 +610,19 @@
       border-radius: 16px;
       padding: 18px;
       background:
-        linear-gradient(135deg, rgba(200, 162, 75, .18), rgba(10,10,10,.82)),
+        linear-gradient(135deg, rgba(0, 87, 216, .14), rgba(0,166,106,.12) 50%, rgba(225,37,59,.12)),
         var(--surface);
+    }
+
+    .hero[hidden] { display: none; }
+
+    .hero-art {
+      width: 100%;
+      height: 130px;
+      border: 1px solid rgba(200, 162, 75, .35);
+      border-radius: 12px;
+      object-fit: cover;
+      box-shadow: 0 16px 28px rgba(8, 27, 70, .14);
     }
 
     .rules-hero h2 {
@@ -543,6 +639,13 @@
       font-size: 15px;
     }
 
+    .rules-hero a {
+      color: var(--usa);
+      font-weight: 800;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 3px;
+    }
+
     .rules-kpi {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -553,7 +656,7 @@
       border: 1px solid var(--line);
       border-radius: 12px;
       padding: 12px;
-      background: rgba(0,0,0,.28);
+      background: rgba(255,255,255,.76);
     }
 
     .rules-kpi strong {
@@ -614,7 +717,7 @@
       border: 1px solid var(--line);
       border-radius: 12px;
       padding: 12px;
-      background: #101010;
+      background: #f8fbff;
       text-align: center;
     }
 
@@ -638,7 +741,7 @@
       border-radius: 12px;
       padding: 18px;
       color: var(--muted);
-      background: rgba(21, 21, 21, .65);
+      background: rgba(255, 255, 255, .72);
     }
 
     .footer {
@@ -651,8 +754,10 @@
     @media (max-width: 760px) {
       .brand { align-items: flex-start; }
       .host-dots { display: none; }
-      .tabs { top: 61px; }
+      .tabs { top: 0; }
       .hero { grid-template-columns: 1fr; }
+      .hero-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .hero-art { height: 120px; }
       .prize { text-align: left; }
       .ranking-head { grid-template-columns: 34px 1fr auto; }
       .breakdown { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -662,24 +767,20 @@
       .rules-wide, .rules-side, .rules-half { grid-column: 1 / -1; }
       .points-grid { grid-template-columns: 1fr; }
     }
+
+    @media (max-width: 520px) {
+      .hero-stats { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
   <header class="topbar">
     <div class="wrap brand">
-      <div class="brand-left">
-        <div class="emblem">26</div>
-        <div>
-          <div class="title">Porra <span>Mundial 2026</span></div>
-          <div id="metaLine" class="meta-line">Cargando datos...</div>
-        </div>
+      <div class="brand-hero">
+        <img class="brand-hero-bg" src="world-cup-2026-hero.svg" alt="Porra Mundial 2026">
+        <img class="brand-emblem" src="FIFA-World-Cup-26-Logo-Vector-730x730.jpg" alt="FIFA World Cup 26">
       </div>
-      <div class="host-dots">
-        <span class="dot" style="background:var(--can)"></span>
-        <span class="dot" style="background:var(--mex)"></span>
-        <span class="dot" style="background:var(--usa)"></span>
-        CAN · MEX · USA
-      </div>
+      <div id="metaLine" class="sr-only">Cargando datos...</div>
     </div>
   </header>
 
@@ -698,13 +799,13 @@
 
   <script>
     const TABS = [
+      ["reglas", "Reglas"],
       ["porra", "Clasificacion"],
       ["selecciones", "Selecciones"],
-      ["elim", "Eliminatorias"],
+      ["bombos", "Bombos"],
       ["grupos", "Grupos"],
       ["partidos", "Fase grupos"],
-      ["bombos", "Bombos"],
-      ["reglas", "Reglas"],
+      ["elim", "Eliminatorias"],
     ];
 
     const BOMBOS = [
@@ -741,7 +842,10 @@
       "Turquía": 4,
       "Turquía*": 4,
     });
-    const BOMBO_COL = ["#c8a24b", "#b8b8b8", "#cd7f32", "#7da3d4"];
+    const CANONICAL_TEAMS = BOMBOS.flatMap((row) =>
+      row.map((team, index) => ({ team, bombo: index + 1 }))
+    );
+    const BOMBO_COL = ["#0057d8", "#00a66a", "#e1253b", "#b88923"];
     const FLAGS = {
       "Alemania": "de",
       "Arabia Saudí": "sa",
@@ -820,8 +924,8 @@
     let DATA = null;
     let activeTab = "porra";
     let openAlias = null;
-    let selectionSort = "total";
     let selectionBombo = 0;
+    let selectionGroup = "";
     let groupFilter = "";
     let roundFilter = 0;
     let koRound = "R32";
@@ -833,7 +937,7 @@
       })
       .then((data) => {
         DATA = normalizePayload(data);
-        openAlias = DATA.participantes[0]?.alias || null;
+        openAlias = null;
         render();
       })
       .catch((error) => {
@@ -910,12 +1014,29 @@
       `).join("");
 
       const pot = DATA.participantes.length * 10;
-      document.querySelector("#hero").innerHTML = `
-        <div>
-          <h1>Clasificacion viva</h1>
+      const hero = document.querySelector("#hero");
+      hero.hidden = activeTab !== "porra";
+      if (hero.hidden) {
+        hero.innerHTML = "";
+        return;
+      }
+      hero.innerHTML = `
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <strong>${escapeHtml(DATA.participantes.length)}</strong>
+            <span>Participantes</span>
+          </div>
+          <div class="hero-stat">
+            <strong>${pot}&euro;</strong>
+            <span>Bote estimado</span>
+          </div>
+          <div class="hero-stat prize-split">
+            <strong>${Math.round(pot * .8)}&euro; / ${Math.round(pot * .2)}&euro;</strong>
+            <span>Reparto 1&ordm; / 2&ordm;</span>
+          </div>
           <p>${escapeHtml(DATA.participantes.length)} participantes · ${escapeHtml(DATA.partidos.length)} partidos cargados · ${escapeHtml(DATA.goleadores.length)} goleadores</p>
         </div>
-        <div class="prize">
+        <div class="prize" hidden>
           <div>Bote estimado</div>
           <strong>${pot}€</strong>
           <div>1º ${Math.round(pot * .8)}€ · 2º ${Math.round(pot * .2)}€</div>
@@ -981,21 +1102,23 @@
     }
 
     function renderSelections() {
+      const groups = selectionGroups();
       const teams = computeTeamScores()
         .filter((team) => !selectionBombo || team.bombo === selectionBombo)
-        .sort((a, b) => {
-          if (selectionSort === "grupos") return b.grupos - a.grupos || a.team.localeCompare(b.team);
-          if (selectionSort === "ko") return (b.ko_resultado + b.ko_pase) - (a.ko_resultado + a.ko_pase) || a.team.localeCompare(b.team);
-          return b.total - a.total || a.team.localeCompare(b.team);
-        });
+        .filter((team) => !selectionGroup || team.group === selectionGroup)
+        .sort((a, b) =>
+          a.bombo - b.bombo ||
+          String(a.group || "").localeCompare(String(b.group || "")) ||
+          a.team.localeCompare(b.team)
+        );
       return `
-        <p class="section-note">Puntos que aporta cada seleccion: grupos + resultado de eliminatorias a 90 minutos + bonus de pase por bombo.</p>
-        ${selectionToolbar()}
+        <p class="section-note">Selecciones ordenadas por bombo y grupo. Los puntos muestran lo que aporta cada seleccion: grupos + resultado de eliminatorias a 90 minutos + bonus de pase por bombo.</p>
+        ${selectionToolbar(groups)}
         <div class="card">
           <table>
             <thead>
               <tr>
-                <th>#</th><th>Seleccion</th><th class="center">Bombo</th><th class="num">Grupos</th><th class="num">KO res</th><th class="num">KO pase</th><th class="num">Total</th>
+                <th>#</th><th>Seleccion</th><th class="center">Bombo</th><th class="center">Grupo</th><th class="num">Grupos</th><th class="num">KO res</th><th class="num">KO pase</th><th class="num">Total</th>
               </tr>
             </thead>
             <tbody>
@@ -1004,6 +1127,7 @@
                   <td class="dim">${index + 1}</td>
                   <td class="team-name">${teamLabel(team.team)}</td>
                   <td class="center pot-${team.bombo}">${team.bombo}</td>
+                  <td class="center">${escapeHtml(team.group || "-")}</td>
                   <td class="num">${team.grupos}</td>
                   <td class="num">${team.ko_resultado}</td>
                   <td class="num">${team.ko_pase}</td>
@@ -1016,15 +1140,14 @@
       `;
     }
 
-    function selectionToolbar() {
+    function selectionToolbar(groups) {
       return `
         <div class="toolbar">
-          <span class="toolbar-label">Ordenar</span>
-          ${buttonFilter("sort", "total", "Total", selectionSort)}
-          ${buttonFilter("sort", "grupos", "Grupos", selectionSort)}
-          ${buttonFilter("sort", "ko", "Eliminatorias", selectionSort)}
-          <span class="toolbar-label" style="margin-left:8px">Bombo</span>
+          <span class="toolbar-label">Bombo</span>
           ${[0, 1, 2, 3, 4].map((bombo) => buttonFilter("bombo", String(bombo), bombo ? String(bombo) : "Todos", String(selectionBombo))).join("")}
+          <span class="toolbar-label" style="margin-left:8px">Grupo</span>
+          ${buttonFilter("selection-group", "", "Todos", selectionGroup)}
+          ${groups.map((group) => buttonFilter("selection-group", group, group, selectionGroup)).join("")}
         </div>
       `;
     }
@@ -1119,7 +1242,7 @@
             <thead><tr>${[1, 2, 3, 4].map((bombo) => `<th class="center pot-${bombo}">Bombo ${bombo}</th>`).join("")}</tr></thead>
             <tbody>
               ${BOMBOS.map((row) => `
-                <tr>${row.map((team, index) => `<td class="center pot-${index + 1}">${teamLabel(team)}</td>`).join("")}</tr>
+                <tr>${row.map((team, index) => `<td class="left pot-${index + 1}">${teamLabel(team)}</td>`).join("")}</tr>
               `).join("")}
             </tbody>
           </table>
@@ -1133,9 +1256,9 @@
         <div class="rules">
           <section class="rules-hero">
             <div>
-              <p class="eyebrow">Reglamento oficial</p>
               <h2>Reglas de la porra</h2>
               <p>Elige cuatro selecciones, una por bombo, y suma puntos segun avancen en el Mundial 2026. La clasificacion publica muestra el alias de cada participante.</p>
+              <p>Para participar, accede al formulario y elige tus selecciones aqui: <a href="https://forms.gle/YBDFtSPVChP3aSGu5" target="_blank" rel="noopener">Formulario de participacion</a>.</p>
             </div>
             <div class="rules-kpi">
               <div><strong>10&euro;</strong><span>Cuota de participacion</span></div>
@@ -1269,30 +1392,53 @@
     }
 
     function computeTeamScores() {
-      const teams = Object.entries(BOMBO_MAP).map(([team, bombo]) => ({
+      const teamGroups = teamGroupMap();
+      const teams = CANONICAL_TEAMS.map(({ team, bombo }) => ({
         team,
         bombo,
+        group: teamGroups[cleanTeam(team)] || teamGroups[looseTeamKey(team)] || "",
         grupos: 0,
         ko_resultado: 0,
         ko_pase: 0,
         total: 0,
       }));
-      const byName = Object.fromEntries(teams.map((team) => [cleanTeam(team.team), team]));
+      const byName = {};
+      teams.forEach((team) => {
+        byName[cleanTeam(team.team)] = team;
+        byName[looseTeamKey(team.team)] = team;
+      });
       DATA.partidos.forEach((match) => {
         [match.home_team, match.away_team].forEach((teamName) => {
-          const row = byName[cleanTeam(teamName)];
+          const row = byName[cleanTeam(teamName)] || byName[looseTeamKey(teamName)];
           if (!row) return;
           const [gf, gc] = goalsFor(match, teamName, match.ronda !== "grupos");
           const points = resultPoints(gf, gc);
           if (match.ronda === "grupos") row.grupos += points;
           else {
             row.ko_resultado += points;
-            if (cleanTeam(match.pasa) === cleanTeam(teamName)) row.ko_pase += row.bombo;
+            if (looseTeamKey(match.pasa) === looseTeamKey(teamName)) row.ko_pase += row.bombo;
           }
           row.total = row.grupos + row.ko_resultado + row.ko_pase;
         });
       });
       return teams;
+    }
+
+    function selectionGroups() {
+      return [...new Set(computeTeamScores().map((team) => team.group).filter(Boolean))].sort();
+    }
+
+    function teamGroupMap() {
+      const groups = {};
+      DATA.partidos
+        .filter((match) => match.group)
+        .forEach((match) => {
+          groups[cleanTeam(match.home_team)] = match.group;
+          groups[cleanTeam(match.away_team)] = match.group;
+          groups[looseTeamKey(match.home_team)] = match.group;
+          groups[looseTeamKey(match.away_team)] = match.group;
+        });
+      return groups;
     }
 
     function standings(group) {
@@ -1331,15 +1477,15 @@
           render();
         });
       });
-      document.querySelectorAll("[data-sort]").forEach((button) => {
-        button.addEventListener("click", () => {
-          selectionSort = button.dataset.sort;
-          render();
-        });
-      });
       document.querySelectorAll("[data-bombo]").forEach((button) => {
         button.addEventListener("click", () => {
           selectionBombo = Number(button.dataset.bombo);
+          render();
+        });
+      });
+      document.querySelectorAll("[data-selection-group]").forEach((button) => {
+        button.addEventListener("click", () => {
+          selectionGroup = button.dataset.selectionGroup;
           render();
         });
       });
@@ -1387,6 +1533,13 @@
 
     function cleanTeam(team) {
       return String(team || "").replace(/\*+/g, "").trim();
+    }
+
+    function looseTeamKey(team) {
+      return cleanTeam(team)
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
     }
 
     function teamLabel(team) {
