@@ -272,6 +272,7 @@
     .chip {
       display: inline-flex;
       align-items: center;
+      gap: 6px;
       border: 1px solid var(--line);
       border-radius: 999px;
       padding: 3px 8px;
@@ -484,6 +485,53 @@
     .pot-3 { color: #cd7f32; }
     .pot-4 { color: #7da3d4; }
 
+    .flag {
+      width: 22px;
+      height: 15px;
+      object-fit: cover;
+      border-radius: 3px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,.16);
+      background: #222;
+      vertical-align: -2px;
+    }
+
+    .team-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: inherit;
+    }
+
+    .rules {
+      display: grid;
+      gap: 14px;
+    }
+
+    .rules-block {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px;
+      background: rgba(21, 21, 21, .92);
+    }
+
+    .rules-block h2 {
+      margin-bottom: 8px;
+      color: var(--gold-bright);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 24px;
+      text-transform: uppercase;
+    }
+
+    .rules-block p, .rules-block li {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .rules-block ul {
+      margin-left: 18px;
+    }
+
     .empty {
       border: 1px dashed var(--line);
       border-radius: 12px;
@@ -552,6 +600,7 @@
       ["grupos", "Grupos"],
       ["partidos", "Fase grupos"],
       ["bombos", "Bombos"],
+      ["reglas", "Reglas"],
     ];
 
     const BOMBOS = [
@@ -589,6 +638,70 @@
       "Turquía*": 4,
     });
     const BOMBO_COL = ["#c8a24b", "#b8b8b8", "#cd7f32", "#7da3d4"];
+    const FLAGS = {
+      "Alemania": "de",
+      "Arabia Saudí": "sa",
+      "Arabia Saudi": "sa",
+      "Argelia": "dz",
+      "Argentina": "ar",
+      "Australia": "au",
+      "Austria": "at",
+      "Bélgica": "be",
+      "Belgica": "be",
+      "Bosnia y Herzegovina": "ba",
+      "Brasil": "br",
+      "Cabo Verde": "cv",
+      "Canadá": "ca",
+      "Canada": "ca",
+      "Catar": "qa",
+      "Chequia": "cz",
+      "Colombia": "co",
+      "Corea del Sur": "kr",
+      "Costa de Marfil": "ci",
+      "Croacia": "hr",
+      "Curazao": "cw",
+      "Ecuador": "ec",
+      "Egipto": "eg",
+      "Escocia": "gb-sct",
+      "España": "es",
+      "Espana": "es",
+      "Estados Unidos": "us",
+      "Francia": "fr",
+      "Ghana": "gh",
+      "Haití": "ht",
+      "Haiti": "ht",
+      "Inglaterra": "gb-eng",
+      "Irak": "iq",
+      "Irán": "ir",
+      "Iran": "ir",
+      "Japón": "jp",
+      "Japon": "jp",
+      "Jordania": "jo",
+      "Marruecos": "ma",
+      "México": "mx",
+      "Mexico": "mx",
+      "Noruega": "no",
+      "Nueva Zelanda": "nz",
+      "Países Bajos": "nl",
+      "Paises Bajos": "nl",
+      "Panamá": "pa",
+      "Panama": "pa",
+      "Paraguay": "py",
+      "Portugal": "pt",
+      "RD Congo": "cd",
+      "Senegal": "sn",
+      "Sudáfrica": "za",
+      "Sudafrica": "za",
+      "Suecia": "se",
+      "Suiza": "ch",
+      "Túnez": "tn",
+      "Tunez": "tn",
+      "Turquía": "tr",
+      "Turquia": "tr",
+      "Uruguay": "uy",
+      "Uzbekistán": "uz",
+      "Uzbekistan": "uz",
+    };
     const ROUND_LABEL = {
       grupos: "Grupos",
       R32: "R. de 32",
@@ -677,6 +790,7 @@
         grupos: renderGroups,
         partidos: renderMatches,
         bombos: renderBombos,
+        reglas: renderRules,
       };
       document.querySelector("#app").innerHTML = renderers[activeTab]();
       bindEvents();
@@ -719,7 +833,7 @@
             <div class="rank">${index + 1}</div>
             <div>
               <div class="alias">${escapeHtml(participant.alias)}</div>
-              <div class="teams">${(participant.equipos || []).map((team) => `<span class="chip">${escapeHtml(team)}</span>`).join("")}</div>
+              <div class="teams">${(participant.equipos || []).map((team) => `<span class="chip">${teamLabel(team)}</span>`).join("")}</div>
             </div>
             <div class="score">${participant.puntos_total || 0}<span>puntos</span></div>
           </button>
@@ -749,7 +863,7 @@
       return `
         <div class="team-card" style="border-color:${color}55">
           <h3>
-            <span>${escapeHtml(teamData.team)}</span>
+            <span>${teamLabel(teamData.team)}</span>
             <span style="color:${color}">${(teamData.g_pts || 0) + (teamData.ko_pts || 0)}</span>
           </h3>
           <small>Bombo ${bombo} · Grupos ${teamData.g_pts || 0} · KO ${teamData.ko_pts || 0}</small>
@@ -784,7 +898,7 @@
               ${teams.map((team, index) => `
                 <tr>
                   <td class="dim">${index + 1}</td>
-                  <td class="team-name">${escapeHtml(team.team)}</td>
+                  <td class="team-name">${teamLabel(team.team)}</td>
                   <td class="center pot-${team.bombo}">${team.bombo}</td>
                   <td class="num">${team.grupos}</td>
                   <td class="num">${team.ko_resultado}</td>
@@ -843,7 +957,7 @@
               ${table.map((row, index) => `
                 <tr>
                   <td class="dim">${index + 1}</td>
-                  <td class="team-name">${escapeHtml(row.team)}</td>
+                  <td class="team-name">${teamLabel(row.team)}</td>
                   <td class="num">${row.PJ}</td>
                   <td class="num">${row.G}</td>
                   <td class="num">${row.E}</td>
@@ -887,9 +1001,9 @@
       return `
         <div class="match-row">
           <div class="match-date">${escapeHtml(match.fecha || "")}<br>${escapeHtml(match.group ? `Grupo ${match.group}` : ROUND_LABEL[match.ronda] || match.ronda || "")}</div>
-          <div class="home">${escapeHtml(match.home_team || "")}</div>
+          <div class="home">${teamLabel(match.home_team || "")}</div>
           <div class="result">${score}</div>
-          <div class="away">${escapeHtml(match.away_team || "")}</div>
+          <div class="away">${teamLabel(match.away_team || "")}</div>
         </div>
       `;
     }
@@ -901,12 +1015,52 @@
             <thead><tr>${[1, 2, 3, 4].map((bombo) => `<th class="center pot-${bombo}">Bombo ${bombo}</th>`).join("")}</tr></thead>
             <tbody>
               ${BOMBOS.map((row) => `
-                <tr>${row.map((team, index) => `<td class="center pot-${index + 1}">${escapeHtml(team)}</td>`).join("")}</tr>
+                <tr>${row.map((team, index) => `<td class="center pot-${index + 1}">${teamLabel(team)}</td>`).join("")}</tr>
               `).join("")}
             </tbody>
           </table>
         </div>
         <p class="section-note" style="margin-top:10px">* Repesca UEFA · ** Repesca intercontinental</p>
+      `;
+    }
+
+    function renderRules() {
+      return `
+        <div class="rules">
+          <div class="rules-block">
+            <h2>Como se participa</h2>
+            <p>Cada participante elige una seleccion de cada bombo, mas campeon, subcampeon y pichichi. El alias es el nombre visible en la clasificacion publica.</p>
+          </div>
+          <div class="rules-block">
+            <h2>Cuota y premios</h2>
+            <p>La cuota es de 10 euros por participante. El bote se reparte con 80% para el primer clasificado y 20% para el segundo.</p>
+          </div>
+          <div class="rules-block">
+            <h2>Restriccion de equipos</h2>
+            <p>Dos participantes no pueden coincidir en 3 o mas de sus 4 selecciones. Si ocurre, tiene prioridad la quiniela enviada antes.</p>
+          </div>
+          <div class="rules-block">
+            <h2>Puntuacion</h2>
+            <ul>
+              <li>Fase de grupos: victoria 3 puntos, empate 1, derrota 0.</li>
+              <li>Eliminatorias: se puntua el resultado a los 90 minutos con la misma regla 3/1/0.</li>
+              <li>La prorroga y los penaltis no cambian los puntos por resultado.</li>
+            </ul>
+          </div>
+          <div class="rules-block">
+            <h2>Bonus por pasar ronda</h2>
+            <p>Cada seleccion suma un extra cada vez que supera una ronda eliminatoria: Bombo 1 +1, Bombo 2 +2, Bombo 3 +3 y Bombo 4 +4.</p>
+          </div>
+          <div class="rules-block">
+            <h2>Bonus finales</h2>
+            <ul>
+              <li>Campeon acertado: +10.</li>
+              <li>Subcampeon acertado: +5.</li>
+              <li>Pichichi acertado: +7.</li>
+              <li>Si el campeon real esta entre tus 4 equipos pero no lo marcaste como campeon: +6.</li>
+            </ul>
+          </div>
+        </div>
       `;
     }
 
@@ -1029,6 +1183,14 @@
 
     function cleanTeam(team) {
       return String(team || "").replace(/\*+/g, "").trim();
+    }
+
+    function teamLabel(team) {
+      const cleaned = cleanTeam(team);
+      const code = FLAGS[cleaned] || FLAGS[String(team || "")];
+      const suffix = String(team || "").includes("**") ? "**" : String(team || "").includes("*") ? "*" : "";
+      const flag = code ? `<img class="flag" src="https://flagcdn.com/w40/${code}.png" alt="">` : "";
+      return `<span class="team-label">${flag}<span>${escapeHtml(cleaned)}${suffix}</span></span>`;
     }
 
     function scoreValue(value) {
