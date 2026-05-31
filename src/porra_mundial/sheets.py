@@ -24,15 +24,22 @@ FIELD_ALIASES = {
 }
 
 
-def load_public_tsv_inputs(*, tsv_url: str, seed: dict[str, Any]) -> dict[str, Any]:
+def load_public_tsv_inputs(
+    *,
+    tsv_url: str,
+    seed: dict[str, Any],
+    overrides_tsv_url: str | None = None,
+) -> dict[str, Any]:
     """Lee una pestaña publicada como TSV y devuelve datos sanitizados."""
     rows = _rows_to_dicts(_read_tsv_url(tsv_url))
+    overrides_rows = _rows_to_dicts(_read_tsv_url(overrides_tsv_url)) if overrides_tsv_url else []
     output = dict(seed)
     output["participantes"] = [
         _sanitize_participant(row)
         for row in rows
         if _has_public_pick_data(row)
     ]
+    output["overrides"] = [row for row in overrides_rows if any(value for value in row.values())]
     return output
 
 
@@ -51,6 +58,7 @@ def load_sheet_inputs(
         ranges=[quinielas_range, overrides_range],
     )
     quinielas_rows = _rows_to_dicts(values.get(quinielas_range, []))
+    overrides_rows = _rows_to_dicts(values.get(overrides_range, []))
 
     output = dict(seed)
     output["participantes"] = [
@@ -58,6 +66,7 @@ def load_sheet_inputs(
         for row in quinielas_rows
         if _has_public_pick_data(row)
     ]
+    output["overrides"] = [row for row in overrides_rows if any(value for value in row.values())]
     return output
 
 

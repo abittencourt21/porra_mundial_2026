@@ -1,7 +1,12 @@
 import unittest
 from unittest.mock import patch
 
-from porra_mundial.sheets import _read_tsv_url, _rows_to_dicts, _sanitize_participant
+from porra_mundial.sheets import (
+    _read_tsv_url,
+    _rows_to_dicts,
+    _sanitize_participant,
+    load_public_tsv_inputs,
+)
 
 
 class SheetMappingTests(unittest.TestCase):
@@ -61,6 +66,35 @@ class SheetMappingTests(unittest.TestCase):
             rows = _read_tsv_url("https://example.test/public.tsv")
 
         self.assertEqual(rows, [["Alias", "Equipo del Bombo 1"], ["Crack26", "Espana"]])
+
+    def test_public_tsv_overrides_are_optional(self):
+        class FakeResponse:
+            def __init__(self, raw):
+                self.raw = raw
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_args):
+                return False
+
+            def read(self):
+                return self.raw.encode()
+
+        responses = [
+            FakeResponse("Alias\tEquipo del Bombo 1\nCrack26\tEspana\n"),
+            FakeResponse("type\testado_torneo\nmeta\tgrupos\n"),
+        ]
+
+        with patch("porra_mundial.sheets.urlopen", side_effect=responses):
+            inputs = load_public_tsv_inputs(
+                tsv_url="https://example.test/public.tsv",
+                overrides_tsv_url="https://example.test/overrides.tsv",
+                seed={"participantes": [], "partidos": [], "bombos": {}, "meta": {}},
+            )
+
+        self.assertEqual(inputs["participantes"][0]["alias"], "Crack26")
+        self.assertEqual(inputs["overrides"], [{"type": "meta", "estado_torneo": "grupos"}])
 
     def test_sanitizes_current_public_tsv_headers(self):
         values = [

@@ -35,10 +35,12 @@ jobs:
       - name: Build public/datos.json
         env:
           GOOGLE_SHEET_TSV_URL: ${{ secrets.GOOGLE_SHEET_TSV_URL }}
+          GOOGLE_OVERRIDES_TSV_URL: ${{ secrets.GOOGLE_OVERRIDES_TSV_URL }}
           GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           GOOGLE_QUINIELAS_RANGE: quinielas!A:Z
           GOOGLE_OVERRIDES_RANGE: overrides!A:Z
+          SPORTSDB_SEASON: "2026"
         run: python -m porra_mundial.build_data --out public/datos.json
 
       - name: Configure Pages
