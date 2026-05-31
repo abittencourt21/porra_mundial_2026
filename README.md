@@ -1,14 +1,51 @@
 # Porra Mundial 2026
 
-Base tecnica para una porra privada del Mundial 2026:
+Porra privada del Mundial 2026 con web estatica en GitHub Pages y datos
+publicados de forma saneada.
 
-- `src/porra_mundial`: motor Python de puntuacion y generacion de `datos.json`.
-- `tests`: pruebas unitarias de las reglas de negocio.
-- `data`: datos semilla y salida generada.
-- `public`: web estatica para GitHub Pages.
-- `.github/workflows`: automatizacion preparada para generar y publicar datos.
+## Como participar
 
-## Comandos utiles
+1. Completa el formulario de participacion:
+   https://forms.gle/YBDFtSPVChP3aSGu5
+2. Elige una seleccion de cada bombo.
+3. Completa tambien campeon, subcampeon y pichichi.
+4. Revisa las reglas completas en la pagina de la porra:
+   `public/index.html` -> pestaña `Reglas`.
+
+## Resumen de reglas
+
+- Cada participante elige 1 seleccion de cada bombo.
+- No se permiten combinaciones demasiado parecidas entre participantes.
+- La cuota de participacion es de 10 EUR.
+- El bote se reparte 80% para el primer clasificado y 20% para el segundo.
+- La puntuacion combina fase de grupos, eliminatorias y bonuses finales.
+- Para eliminatorias solo cuenta el resultado a 90 minutos.
+- El campeon, subcampeon y pichichi dan puntos extra.
+
+La referencia completa para participantes esta en
+[`REGLAS_PARTICIPANTES.md`](REGLAS_PARTICIPANTES.md).
+
+## Web publica
+
+La pagina esta pensada para GitHub Pages y muestra:
+
+- Clasificacion viva.
+- Selecciones y puntuacion.
+- Grupos y eliminatorias.
+- Bombos del torneo.
+- Reglas de participacion.
+
+## Funcionamiento de los datos
+
+Los datos visibles en la web se publican como `datos.json` y se generan de
+forma automatica a partir de una fuente saneada.
+
+Cuando no hay datos reales disponibles, el proyecto usa los datos de ejemplo
+en `data/seed.json`.
+
+## Operacion basica
+
+Para validar el proyecto en local:
 
 ```powershell
 $env:PYTHONPATH = "src"
@@ -16,42 +53,20 @@ python -m unittest discover -s tests
 python -m porra_mundial.build_data --out public/datos.json
 ```
 
-## Siguiente integracion
+## Estructura del repo
 
-El motor ya esta separado de las fuentes de datos. Los proximos pasos naturales son:
+- `public/`: sitio estatico para GitHub Pages.
+- `src/porra_mundial/`: logica de puntuacion y generacion de datos.
+- `data/`: datos semilla y salidas intermedias.
+- `tests/`: pruebas unitarias.
+- `.github/workflows/`: automatizacion de build y publicacion.
 
-1. Conectar lectura de Google Sheet para `quinielas`.
-2. Sondear TheSportsDB `idLeague=4429`, temporada `2026`.
-3. Aplicar `overrides` manuales cuando falten datos a 90 minutos, clasificados o goleadores.
+## Privacidad
 
-## Google Form y Google Sheet
+La publicacion en Pages solo expone datos sanitizados:
 
-Crear un Google Form con estos campos:
+- alias publico
+- selecciones
+- puntuacion
 
-- Nombre real
-- Alias
-- Email
-- Equipo del Bombo 1
-- Equipo del Bombo 2
-- Equipo del Bombo 3
-- Equipo del Bombo 4
-- Campeon
-- Subcampeon
-- Pichichi
-
-Conectar el Form a un Google Sheet y renombrar la pestana de respuestas a
-`quinielas`. Crear tambien una pestana `overrides` para correcciones manuales.
-
-El generador solo publica datos sanitizados: `alias`, equipos, predicciones
-visibles y puntuacion. No exporta nombre real ni email al `datos.json`.
-
-### Secrets de GitHub Actions
-
-Crear una service account en Google Cloud con permiso de lectura sobre Google
-Sheets, compartir el Sheet con el email de esa service account, y anadir estos
-secrets al repositorio:
-
-- `GOOGLE_SHEET_ID`: el ID del Sheet, tomado de la URL.
-- `GOOGLE_SERVICE_ACCOUNT_JSON`: el JSON completo de credenciales de la service account.
-
-Si faltan esos secrets, el workflow usa `data/seed.json` como demo.
+No se publican nombre real ni email.
