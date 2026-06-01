@@ -46,7 +46,7 @@ listado de bombos original.
 
 ## Cuota y Premios
 
-La cuota de participacion es de **10 euros**.
+La cuota de participacion es de **5 euros**.
 
 El pago debe hacerse antes del inicio de la **Jornada 2**, el **18/06/2026**. Si
 el pago no esta hecho a tiempo, la quiniela queda anulada.

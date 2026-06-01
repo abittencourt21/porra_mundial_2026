@@ -16,7 +16,7 @@ publicados de forma saneada.
 
 - Cada participante elige 1 seleccion de cada bombo.
 - No se permiten combinaciones demasiado parecidas entre participantes.
-- La cuota de participacion es de 10 EUR.
+- La cuota de participacion es de 5 EUR.
 - El bote se reparte 80% para el primer clasificado y 20% para el segundo.
 - La puntuacion combina fase de grupos, eliminatorias y bonuses finales.
 - Para eliminatorias solo cuenta el resultado a 90 minutos.
