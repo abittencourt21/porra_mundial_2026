@@ -5,7 +5,8 @@ on:
     branches: ["main"]
   workflow_dispatch:
   schedule:
-    - cron: "17 * * * *"
+    # GitHub Actions usa UTC. Ejecuta cada 6 horas en el minuto 17.
+    - cron: "17 */6 * * *"
 
 permissions:
   contents: read
