@@ -9,14 +9,18 @@ import re
 import unicodedata
 from pathlib import Path
 from typing import Any
+from urllib.request import urlopen
+from zoneinfo import ZoneInfo
 
 from .models import Match
 from .scoring import build_datos_json
 from .sheets import load_public_tsv_inputs, load_sheet_inputs
-from .sportsdb import fetch_world_cup_events, parse_events
+from .sportsdb import fetch_world_cup_events_for_date, parse_events
 
 
 ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_PREVIOUS_DATOS_URL = "https://abittencourt21.github.io/porra_mundial_2026/datos.json"
+LOCAL_TIMEZONE = ZoneInfo("Europe/Madrid")
 
 TEAM_ALIASES = {
     "argentina": "argentina",
@@ -115,9 +119,13 @@ def main() -> None:
     args = parser.parse_args()
 
     inputs = _load_inputs()
-    matches, live_source_used = _load_matches(inputs)
+    previous_payload = _load_previous_payload()
+    build_date = _build_date()
+    matches, live_source_used, sportsdb_alerts = _load_matches(inputs, previous_payload, build_date)
     meta = dict(inputs.get("meta", {}))
     meta["ultima_actualizacion"] = datetime.now(timezone.utc).isoformat()
+    meta["fecha_actualizacion_local"] = build_date
+    meta["alertas"] = sportsdb_alerts
     if live_source_used:
         meta["fuente"] = "TheSportsDB liga 4429"
 
@@ -135,6 +143,13 @@ def main() -> None:
         meta=meta,
         goleadores=goleadores,
     )
+    payload["meta"].update(
+        {
+            "fecha_actualizacion_local": build_date,
+            "alertas": sportsdb_alerts,
+        }
+    )
+    _enrich_ranking(payload, previous_payload, build_date)
 
     out_path = ROOT / args.out
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -172,29 +187,106 @@ def _load_inputs() -> dict:
     return seed
 
 
-def _load_matches(inputs: dict[str, Any]) -> tuple[list[Match], bool]:
-    season = os.getenv("SPORTSDB_SEASON", "2026")
-    base_matches = [Match.from_dict(match) for match in inputs.get("partidos", [])]
+def _load_previous_payload() -> dict[str, Any] | None:
+    previous_url = os.getenv("PREVIOUS_DATOS_URL", DEFAULT_PREVIOUS_DATOS_URL).strip()
+    if not previous_url:
+        return None
     try:
-        payload = fetch_world_cup_events(season)
+        with urlopen(previous_url, timeout=20) as response:
+            return json.loads(response.read().decode("utf-8"))
+    except Exception:
+        return None
+
+
+def _build_date() -> str:
+    explicit = os.getenv("BUILD_DATE", "").strip()
+    if explicit:
+        return _normalize_date(explicit)
+    return datetime.now(LOCAL_TIMEZONE).date().isoformat()
+
+
+def _load_matches(
+    inputs: dict[str, Any],
+    previous_payload: dict[str, Any] | None = None,
+    build_date: str | None = None,
+) -> tuple[list[Match], bool, list[str]]:
+    base_matches = [Match.from_dict(match) for match in inputs.get("partidos", [])]
+    matches = _merge_previous_scores(base_matches, previous_payload)
+    target_date = _normalize_date(build_date or _build_date())
+    expected_today = [match for match in matches if _normalize_date(match.fecha) == target_date]
+    alerts: list[str] = []
+
+    if not expected_today:
+        return matches, False, alerts
+
+    try:
+        payload = fetch_world_cup_events_for_date(target_date)
         parsed = parse_events(payload)
         if parsed:
-            return _merge_live_scores(base_matches, parsed), True
-    except Exception:
-        pass
-    return base_matches, False
+            patched, merge_alerts = _merge_live_scores(matches, parsed, expected_today=expected_today)
+            return patched, True, merge_alerts
+        alerts.append(f"SportsDB no devolvió eventos para {target_date}. Esperados: {len(expected_today)}.")
+    except Exception as exc:
+        alerts.append(f"No se pudo consultar SportsDB para {target_date}: {exc}")
+    return matches, False, alerts
 
 
-def _merge_live_scores(seed_matches: list[Match], live_matches: list[Match]) -> list[Match]:
+def _merge_previous_scores(
+    seed_matches: list[Match],
+    previous_payload: dict[str, Any] | None,
+) -> list[Match]:
+    if not previous_payload:
+        return seed_matches
+
+    previous_matches = [
+        Match.from_dict(match)
+        for match in previous_payload.get("partidos", [])
+    ]
     patched = list(seed_matches)
+    for previous_match in previous_matches:
+        if not _has_result(previous_match):
+            continue
+        match_index = _find_seed_match(patched, previous_match)
+        if match_index is None:
+            continue
+        patched[match_index] = _patch_live_score(patched[match_index], previous_match)
+    return patched
+
+
+def _merge_live_scores(
+    seed_matches: list[Match],
+    live_matches: list[Match],
+    *,
+    expected_today: list[Match] | None = None,
+) -> tuple[list[Match], list[str]]:
+    patched = list(seed_matches)
+    alerts: list[str] = []
+    matched_indexes: set[int] = set()
 
     for live_match in live_matches:
         match_index = _find_seed_match(patched, live_match)
         if match_index is None:
+            alerts.append(
+                f"Evento SportsDB sin emparejar: {live_match.home_team} vs {live_match.away_team} ({live_match.fecha})."
+            )
             continue
         patched[match_index] = _patch_live_score(patched[match_index], live_match)
+        matched_indexes.add(match_index)
 
-    return patched
+    if expected_today:
+        expected_indexes = {
+            index
+            for index, match in enumerate(seed_matches)
+            if any(match.matchid == expected.matchid for expected in expected_today)
+        }
+        missing = expected_indexes - matched_indexes
+        for index in sorted(missing):
+            match = seed_matches[index]
+            alerts.append(
+                f"SportsDB no devolvió partido esperado: {match.home_team} vs {match.away_team} ({match.fecha})."
+            )
+
+    return patched, alerts
 
 
 def _find_seed_match(seed_matches: list[Match], live_match: Match) -> int | None:
@@ -234,6 +326,88 @@ def _patch_live_score(seed_match: Match, live_match: Match) -> Match:
         away_score_90=away_score_90,
         status=live_match.status or seed_match.status,
     )
+
+
+def _has_result(match: Match) -> bool:
+    return match.home_score is not None and match.away_score is not None
+
+
+def _enrich_ranking(
+    payload: dict[str, Any],
+    previous_payload: dict[str, Any] | None,
+    build_date: str,
+) -> None:
+    participants = payload.get("participantes", [])
+    previous_positions = _previous_positions(previous_payload)
+    current_positions: dict[str, int] = {}
+
+    for index, participant in enumerate(participants, start=1):
+        alias = str(participant.get("alias", ""))
+        current_positions[alias] = index
+        previous_rank = previous_positions.get(alias)
+        participant["rank_actual"] = index
+        participant["rank_anterior"] = previous_rank
+        participant["rank_delta"] = None if previous_rank is None else previous_rank - index
+        participant["rank_status"] = "nuevo" if previous_rank is None else (
+            "sube" if previous_rank > index else "baja" if previous_rank < index else "igual"
+        )
+
+    checkpoint_id = _ranking_checkpoint_id(payload, build_date)
+    checkpoint_label = _ranking_checkpoint_label(payload, build_date)
+    previous_history = []
+    if previous_payload:
+        previous_history = list(previous_payload.get("meta", {}).get("ranking_history", []))
+    current_rows = [
+        {
+            "checkpoint": checkpoint_id,
+            "label": checkpoint_label,
+            "fecha": build_date,
+            "alias": participant.get("alias", ""),
+            "posicion": participant.get("rank_actual"),
+            "puntos": participant.get("puntos_total", 0),
+        }
+        for participant in participants
+    ]
+    payload["meta"]["ranking_history"] = [
+        row for row in previous_history if row.get("checkpoint") != checkpoint_id
+    ] + current_rows
+
+
+def _previous_positions(previous_payload: dict[str, Any] | None) -> dict[str, int]:
+    if not previous_payload:
+        return {}
+    positions: dict[str, int] = {}
+    for index, participant in enumerate(previous_payload.get("participantes", []), start=1):
+        positions[str(participant.get("alias", ""))] = int(participant.get("rank_actual") or index)
+    return positions
+
+
+def _ranking_checkpoint_id(payload: dict[str, Any], build_date: str) -> str:
+    completed = [
+        Match.from_dict(match)
+        for match in payload.get("partidos", [])
+        if _has_result(Match.from_dict(match))
+    ]
+    if not completed:
+        return "pre"
+    latest_date = max(_normalize_date(match.fecha) for match in completed)
+    rounds = [
+        match.roundnumber
+        for match in completed
+        if _normalize_date(match.fecha) == latest_date and match.roundnumber is not None
+    ]
+    if rounds:
+        return f"{latest_date}-J{max(rounds)}"
+    return latest_date or build_date
+
+
+def _ranking_checkpoint_label(payload: dict[str, Any], build_date: str) -> str:
+    checkpoint = _ranking_checkpoint_id(payload, build_date)
+    if checkpoint == "pre":
+        return "Pre"
+    if "-J" in checkpoint:
+        return checkpoint.split("-", 3)[-1]
+    return checkpoint
 
 
 def _apply_overrides(

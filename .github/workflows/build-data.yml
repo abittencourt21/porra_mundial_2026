@@ -42,6 +42,7 @@ jobs:
           GOOGLE_QUINIELAS_RANGE: quinielas!A:Z
           GOOGLE_OVERRIDES_RANGE: overrides!A:Z
           SPORTSDB_SEASON: "2026"
+          PREVIOUS_DATOS_URL: https://abittencourt21.github.io/porra_mundial_2026/datos.json
         run: python -m porra_mundial.build_data --out public/datos.json
 
       - name: Configure Pages
