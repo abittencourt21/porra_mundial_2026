@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" role="img" aria-labelledby="title desc">
   <title id="title">Porra Mundial 2026</title>
-  <desc id="desc">Cabecera decorativa con una estetica clara inspirada en los colores rojo, verde y azul del Mundial 2026.</desc>
+  <desc id="desc">Cabecera decorativa con una estética clara inspirada en los colores rojo, verde y azul del Mundial 2026.</desc>
   <defs>
     <linearGradient id="page" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#ffffff"/>
@@ -29,16 +29,6 @@
   <g transform="translate(390 96)">
     <text x="0" y="62" font-family="'Arial Black', Impact, sans-serif" font-size="66" fill="#081b46" letter-spacing="-2">PORRA MUNDIAL</text>
     <text x="2" y="132" font-family="'Arial Black', Impact, sans-serif" font-size="76" fill="url(#gold)" letter-spacing="2">2026</text>
-    <text x="6" y="180" font-family="Arial, sans-serif" font-size="24" fill="#5a6784">Canada · Mexico · Estados Unidos</text>
-  </g>
-
-  <g transform="translate(396 300)">
-    <rect width="136" height="44" rx="22" fill="#e1253b"/>
-    <rect x="154" width="136" height="44" rx="22" fill="#00a66a"/>
-    <rect x="308" width="136" height="44" rx="22" fill="#0057d8"/>
-    <text x="68" y="29" text-anchor="middle" font-family="Arial, sans-serif" font-size="17" fill="#ffffff" font-weight="700">CAN</text>
-    <text x="222" y="29" text-anchor="middle" font-family="Arial, sans-serif" font-size="17" fill="#ffffff" font-weight="700">MEX</text>
-    <text x="376" y="29" text-anchor="middle" font-family="Arial, sans-serif" font-size="17" fill="#ffffff" font-weight="700">USA</text>
   </g>
 
 </svg>

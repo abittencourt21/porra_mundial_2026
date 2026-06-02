@@ -60,11 +60,17 @@ $env:PYTHONPATH = "src"
 $env:GOOGLE_SHEET_TSV_URL = "https://docs.google.com/spreadsheets/d/e/.../pub?gid=...&single=true&output=tsv"
 $env:GOOGLE_OVERRIDES_TSV_URL = "https://docs.google.com/spreadsheets/d/e/.../pub?gid=...&single=true&output=tsv"
 $env:SPORTSDB_SEASON = "2026"
+$env:PREVIOUS_DATOS_URL = "https://abittencourt21.github.io/porra_mundial_2026/datos.json"
 python -m porra_mundial.build_data --out public/datos.json
 ```
 
 `GOOGLE_OVERRIDES_TSV_URL` es opcional. Si la pestana `overrides` no tiene
 datos o no esta publicada, no hace falta configurarlo.
+
+`PREVIOUS_DATOS_URL` permite mantener los resultados ya publicados y calcular
+subidas/bajadas en la clasificacion. Para pruebas puntuales se puede fijar una
+fecha concreta con `BUILD_DATE=YYYY-MM-DD`; si no se indica, se usa la fecha
+actual en zona horaria `Europe/Madrid`.
 
 Para revisar que TheSportsDB devuelve eventos del Mundial:
 
@@ -85,9 +91,16 @@ Secrets recomendados en GitHub:
 
 - `GOOGLE_SHEET_TSV_URL`: URL publicada como TSV de la pestana saneada. Es la opcion recomendada y no requiere claves de Google Cloud.
 - `GOOGLE_OVERRIDES_TSV_URL`: URL publicada como TSV de la pestana `overrides`. Es opcional.
+- `PREVIOUS_DATOS_URL`: URL del `datos.json` publicado en Pages. El workflow ya lo define por defecto.
 - `GOOGLE_SHEET_ID` y `GOOGLE_SERVICE_ACCOUNT_JSON`: alternativa para leer un Sheet privado con service account.
 
 No hace falta una key de TheSportsDB con la configuracion actual; el codigo usa el endpoint publico `json/3`.
+
+El build solo consulta SportsDB para los partidos de la fecha de ejecucion. Los
+resultados de dias anteriores se conservan leyendo el `datos.json` publicado en
+Pages. Si SportsDB devuelve menos partidos de los esperados o cambia nombres de
+selecciones, se anade una alerta en `meta.alertas` y se muestra en la pestana de
+clasificacion.
 
 ## Overrides manuales
 

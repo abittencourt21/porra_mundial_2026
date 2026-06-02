@@ -25,6 +25,14 @@ def fetch_world_cup_events(season: str = "2026") -> dict:
         return json.loads(response.read().decode("utf-8"))
 
 
+def fetch_world_cup_events_for_date(date: str) -> dict:
+    """Descarga eventos de la Copa del Mundo para un dia concreto."""
+    query = urlencode({"d": date, "l": WORLD_CUP_LEAGUE_ID})
+    url = f"{BASE_URL}/eventsday.php?{query}"
+    with urlopen(url, timeout=30) as response:
+        return json.loads(response.read().decode("utf-8"))
+
+
 def parse_events(payload: dict[str, Any]) -> list[Match]:
     return [parse_event(event) for event in payload.get("events") or []]
 
