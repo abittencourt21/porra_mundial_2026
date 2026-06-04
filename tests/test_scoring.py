@@ -75,6 +75,37 @@ class ScoringTests(unittest.TestCase):
         self.assertEqual(scored["puntos_total"], 2)
         self.assertEqual(scored["team_data"][0]["rondas_pasadas"], ["R32"])
 
+    def test_third_place_match_does_not_score_or_count_as_round_passed(self):
+        participant = {
+            "alias": "Ana",
+            "equipos": ["Espana", "Brasil", "Marruecos", "Japon"],
+            "campeon": "Espana",
+            "subcampeon": "Brasil",
+            "pichichi": "Alex",
+        }
+        matches = [
+            {
+                "matchid": 103,
+                "ronda": "3RD",
+                "fecha": "18.07.2026",
+                "home_team": "Espana",
+                "away_team": "Brasil",
+                "home_score": 2,
+                "away_score": 1,
+                "home_score_90": 2,
+                "away_score_90": 1,
+                "pasa": "Espana",
+                "status": "FT",
+            }
+        ]
+
+        scored = score_participant(participant, matches, _bombos(), {"ultima_actualizacion": ""})
+
+        self.assertEqual(scored["desglose"]["playoffs_resultado"], 0)
+        self.assertEqual(scored["desglose"]["playoffs_pase"], 0)
+        self.assertEqual(scored["puntos_total"], 0)
+        self.assertEqual(scored["team_data"][0]["rondas_pasadas"], [])
+
     def test_final_bonus(self):
         participant = {
             "alias": "Ana",
