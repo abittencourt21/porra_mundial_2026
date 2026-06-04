@@ -856,6 +856,51 @@ td.center, th.center { text-align: center; }
   margin: 10px 0 12px;
 }
 
+.history-actions {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 6px;
+  padding-right: 8px;
+  border-right: 1px solid var(--line);
+}
+
+.history-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid var(--usa);
+  border-radius: 999px;
+  padding: 5px 10px;
+  color: #ffffff;
+  background: var(--usa);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.history-action span {
+  display: inline-grid;
+  place-items: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 999px;
+  color: var(--usa);
+  background: #ffffff;
+  font-size: 11px;
+  line-height: 1;
+}
+
+.history-action.ghost {
+  border-color: var(--line);
+  color: var(--muted);
+  background: var(--surface);
+}
+
+.history-action.ghost span {
+  color: #ffffff;
+  background: var(--bad);
+}
+
 .history-chip {
   border: 1px solid var(--line);
   border-radius: 999px;
@@ -865,6 +910,11 @@ td.center, th.center { text-align: center; }
   cursor: pointer;
   font-size: 12px;
   font-weight: 700;
+}
+
+.history-action:hover,
+.history-chip:hover {
+  border-color: var(--usa);
 }
 
 .history-chip.active {

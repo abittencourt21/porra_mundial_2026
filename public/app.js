@@ -143,6 +143,7 @@ let openAliases = new Set();
 let rankingSearch = "";
 let rankingSort = "rank";
 let historyAliases = new Set();
+let historyAllSelected = true;
 let restoreRankingSearchFocus = false;
 let selectionBombo = 0;
 let selectionGroup = "";
@@ -305,7 +306,7 @@ function renderParticipant(participant, index) {
         <div>
           <div class="alias">${escapeHtml(participant.alias)}</div>
           <div class="teams">${(participant.equipos || []).map((team) => `<span class="chip">${teamLabel(team)}</span>`).join("")}</div>
-          ${participantSummary(participant)}
+          ${isOpen ? "" : participantSummary(participant)}
         </div>
         <div class="score">${participant.puntos_total || 0}<span>puntos</span></div>
       </button>
@@ -453,8 +454,11 @@ function renderRankingHistory(visibleParticipants) {
   const history = DATA.meta.ranking_history || [];
   if (!history.length) return "";
   const visibleAliases = visibleParticipants.map((participant) => participant.alias);
-  const selected = [...historyAliases].filter((alias) => visibleAliases.includes(alias));
-  const aliases = selected.length ? selected : visibleAliases.slice(0, 5);
+  if (historyAllSelected) historyAliases = new Set(visibleAliases);
+  else historyAliases = new Set([...historyAliases].filter((alias) => visibleAliases.includes(alias)));
+  const aliases = [...historyAliases];
+  const allVisibleSelected = visibleAliases.length > 0 && aliases.length === visibleAliases.length;
+  const historyAction = allVisibleSelected ? "clear" : "all";
   const checkpoints = [...new Map(history.map((row) => [row.checkpoint, row.label || row.checkpoint])).entries()];
   const rows = history.filter((row) => aliases.includes(row.alias));
   const maxRank = Math.max(1, ...history.map((row) => Number(row.posicion) || 1));
@@ -467,6 +471,11 @@ function renderRankingHistory(visibleParticipants) {
         </div>
       </div>
       <div class="history-filter">
+        <div class="history-actions" aria-label="Acciones del filtro de evolución">
+          <button class="history-action ${historyAction === "clear" ? "ghost" : ""}" data-history-action="${historyAction}" title="${historyAction === "clear" ? "Limpiar selección" : "Seleccionar todos los participantes"}">
+            <span aria-hidden="true">${historyAction === "clear" ? "×" : "✓"}</span> ${historyAction === "clear" ? "Limpiar selección" : "Seleccionar todo"}
+          </button>
+        </div>
         ${visibleAliases.map((alias) => `<button class="history-chip ${aliases.includes(alias) ? "active" : ""}" data-history-alias="${escapeAttr(alias)}">${escapeHtml(alias)}</button>`).join("")}
       </div>
       <div class="history-chart">${historySvg(rows, checkpoints, aliases, maxRank)}</div>
@@ -900,8 +909,20 @@ function bindEvents() {
   document.querySelectorAll("[data-history-alias]").forEach((button) => {
     button.addEventListener("click", () => {
       const alias = button.dataset.historyAlias;
+      historyAllSelected = false;
       if (historyAliases.has(alias)) historyAliases.delete(alias);
       else historyAliases.add(alias);
+      render();
+    });
+  });
+  document.querySelectorAll("[data-history-action]").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (button.dataset.historyAction === "all") {
+        historyAllSelected = true;
+      } else {
+        historyAllSelected = false;
+        historyAliases = new Set();
+      }
       render();
     });
   });
