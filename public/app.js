@@ -1,6 +1,6 @@
 const TABS = [
-  ["reglas", "Reglas"],
   ["porra", "Clasificación"],
+  ["reglas", "Reglas"],
   ["selecciones", "Selecciones"],
   ["bombos", "Bombos"],
   ["grupos", "Grupos"],
@@ -138,7 +138,7 @@ const ROUND_LABEL = {
 const ROUND_ORDER = { R32: 1, R16: 2, QF: 3, SF: 4, "3RD": 5, F: 6 };
 
 let DATA = null;
-let activeTab = "reglas";
+let activeTab = "porra";
 let openAliases = new Set();
 let rankingSearch = "";
 let rankingSort = "rank";
