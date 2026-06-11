@@ -125,7 +125,6 @@ def main() -> None:
     meta = dict(inputs.get("meta", {}))
     meta["ultima_actualizacion"] = datetime.now(timezone.utc).isoformat()
     meta["fecha_actualizacion_local"] = build_date
-    meta["alertas"] = sportsdb_alerts
     if live_source_used:
         meta["fuente"] = "TheSportsDB liga 4429"
 
@@ -146,7 +145,6 @@ def main() -> None:
     payload["meta"].update(
         {
             "fecha_actualizacion_local": build_date,
-            "alertas": sportsdb_alerts,
         }
     )
     _enrich_ranking(payload, previous_payload, build_date)
@@ -158,6 +156,8 @@ def main() -> None:
         encoding="utf-8",
     )
     print(f"Generado {out_path}")
+    for alert in sportsdb_alerts:
+        print(f"::warning::{alert}")
 
 
 def _load_seed(path: Path) -> dict:
