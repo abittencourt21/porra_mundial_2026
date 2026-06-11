@@ -289,7 +289,6 @@ function renderRanking() {
       </div>
     </div>
     ${rankingToolbar(participants)}
-    ${renderAlerts()}
     ${participants.length ? `<div class="stack">${participants.map((participant, index) => renderParticipant(participant, index)).join("")}</div>` : `<div class="empty">No hay participantes con ese filtro.</div>`}
     ${renderRankingHistory(participants)}
   `;
@@ -437,17 +436,6 @@ function rankDelta(participant) {
   if (!delta) return `<span class="rank-delta">=</span>`;
   if (delta > 0) return `<span class="rank-delta up">↑ ${delta}</span>`;
   return `<span class="rank-delta down">↓ ${Math.abs(delta)}</span>`;
-}
-
-function renderAlerts() {
-  const alerts = DATA.meta.alertas || [];
-  if (!alerts.length) return "";
-  return `
-    <div class="empty" style="margin-bottom:12px">
-      <strong>Alertas de datos</strong>
-      <ul style="margin:8px 0 0 18px">${alerts.map((alert) => `<li>${escapeHtml(alert)}</li>`).join("")}</ul>
-    </div>
-  `;
 }
 
 function renderRankingHistory(visibleParticipants) {
