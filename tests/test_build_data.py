@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import call, patch
 
 from porra_mundial.build_data import _apply_overrides, _enrich_ranking, _load_matches
 from porra_mundial.models import Match
@@ -36,9 +36,13 @@ class BuildDataSportsDbTests(unittest.TestCase):
             ]
         }
 
-        with patch("porra_mundial.build_data.fetch_world_cup_events_for_date", return_value=payload):
+        with patch(
+            "porra_mundial.build_data.fetch_world_cup_events_for_date",
+            side_effect=[{"events": []}, payload],
+        ) as fetch:
             matches, live_used, alerts = _load_matches(seed, build_date="2026-06-11")
 
+        fetch.assert_has_calls([call("2026-06-10"), call("2026-06-11")])
         self.assertTrue(live_used)
         self.assertEqual(alerts, [])
         self.assertEqual(len(matches), 1)
@@ -77,7 +81,10 @@ class BuildDataSportsDbTests(unittest.TestCase):
             ]
         }
 
-        with patch("porra_mundial.build_data.fetch_world_cup_events_for_date", return_value=payload):
+        with patch(
+            "porra_mundial.build_data.fetch_world_cup_events_for_date",
+            side_effect=[{"events": []}, payload],
+        ):
             matches, live_used, alerts = _load_matches(seed, build_date="2026-06-11")
 
         self.assertTrue(live_used)
@@ -94,7 +101,7 @@ class BuildDataSportsDbTests(unittest.TestCase):
                     "strAwayTeam": "South Africa",
                     "intHomeScore": "2",
                     "intAwayScore": "1",
-                    "dateEvent": "2026-06-11",
+                    "dateEvent": "2026-06-12",
                     "strStatus": "FT",
                 }
             ]
@@ -114,13 +121,58 @@ class BuildDataSportsDbTests(unittest.TestCase):
             ]
         }
 
-        with patch("porra_mundial.build_data.fetch_world_cup_events_for_date", return_value=payload):
+        with patch(
+            "porra_mundial.build_data.fetch_world_cup_events_for_date",
+            side_effect=[{"events": []}, payload],
+        ):
             matches, live_used, alerts = _load_matches(seed, build_date="2026-06-12")
 
         self.assertTrue(live_used)
         self.assertEqual(len(alerts), 2)
         self.assertIsNone(matches[0].home_score)
         self.assertIsNone(matches[0].away_score)
+
+    def test_load_matches_fetches_previous_day_for_midnight_boundary(self):
+        payload_previous_day = {
+            "events": [
+                {
+                    "idEvent": "99",
+                    "strHomeTeam": "Brazil",
+                    "strAwayTeam": "Morocco",
+                    "intRound": "1",
+                    "intHomeScore": "3",
+                    "intAwayScore": "1",
+                    "dateEvent": "2026-06-13",
+                    "strStatus": "FT",
+                }
+            ]
+        }
+        seed = {
+            "partidos": [
+                {
+                    "matchid": 1,
+                    "group": "C",
+                    "roundnumber": 1,
+                    "ronda": "grupos",
+                    "fecha": "13.06.2026",
+                    "home_team": "Brasil",
+                    "away_team": "Marruecos",
+                    "status": "NS",
+                }
+            ]
+        }
+
+        with patch(
+            "porra_mundial.build_data.fetch_world_cup_events_for_date",
+            side_effect=[payload_previous_day, {"events": []}],
+        ) as fetch:
+            matches, live_used, alerts = _load_matches(seed, build_date="2026-06-14")
+
+        fetch.assert_has_calls([call("2026-06-13"), call("2026-06-14")])
+        self.assertTrue(live_used)
+        self.assertEqual(alerts, [])
+        self.assertEqual(matches[0].home_score, 3)
+        self.assertEqual(matches[0].away_score, 1)
 
     def test_load_matches_keeps_previous_scores_for_past_days(self):
         seed = {
