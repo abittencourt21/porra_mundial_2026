@@ -48,7 +48,7 @@ def parse_event(event: dict[str, Any]) -> Match:
         group=event.get("strGroup"),
         roundnumber=_parse_int(event.get("intRound")),
         ronda=_infer_ronda(event),
-        fecha=_format_date(event.get("dateEvent")),
+        fecha=_format_date(event.get("dateEventLocal") or event.get("dateEvent")),
         home_team=event.get("strHomeTeam") or "",
         away_team=event.get("strAwayTeam") or "",
         home_score=_parse_int(event.get("intHomeScore")),
@@ -99,6 +99,8 @@ def _format_date(value: str | None) -> str:
 
 
 def _infer_ronda(event: dict[str, Any]) -> str:
+    if event.get("strGroup"):
+        return "grupos"
     raw_round = " ".join(
         str(event.get(key) or "")
         for key in ("strRound", "strStage", "strDescriptionEN")

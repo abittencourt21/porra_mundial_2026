@@ -1,0 +1,331 @@
+{
+  "query": {
+    "provider": "TheSportsDB",
+    "league_id": "4429",
+    "endpoint": "eventsday.php",
+    "dates": [
+      "2026-06-11",
+      "2026-06-12"
+    ]
+  },
+  "expected_match": {
+    "home_team_seed": "Corea del Sur",
+    "away_team_seed": "Chequia",
+    "home_team_sportsdb_candidates": [
+      "South Korea",
+      "Korea Republic"
+    ],
+    "away_team_sportsdb_candidates": [
+      "Czech Republic",
+      "Czechia"
+    ],
+    "seed_date": "2026-06-11"
+  },
+  "found_expected_match": true,
+  "diagnostic": {
+    "summary": "SportsDB no lo devuelve el 2026-06-11 por dateEvent, pero si aparece al consultar 2026-06-12 con dateEventLocal 2026-06-11.",
+    "seed_date_matches_sportsdb_dateEvent": false,
+    "seed_date_matches_sportsdb_dateEventLocal": true
+  },
+  "matching_events": [
+    {
+      "idEvent": "2461103",
+      "idAPIfootball": "1538999",
+      "strTimestamp": "2026-06-12T02:00:00",
+      "strEvent": "South Korea vs Czech Republic",
+      "strEventAlternate": "Czech Republic @ South Korea",
+      "strFilename": "FIFA World Cup 2026-06-12 South Korea vs Czech Republic",
+      "strSport": "Soccer",
+      "idLeague": "4429",
+      "strLeague": "FIFA World Cup",
+      "strLeagueBadge": "https://r2.thesportsdb.com/images/media/league/badge/e7er5g1696521789.png",
+      "strSeason": "2026",
+      "strDescriptionEN": "The high-stakes drama of global football commands the spotlight as South Korea prepares to clash with the Czech Republic in a highly anticipated Group A opening fixture at the 2026 FIFA World Cup. Contested at the vibrant Estadio Guadalajara, this match presents an instant test of tactical identity and physical stamina under the Mexican sun. The primary hurdle for the Taegeuk Warriors is unlocking a structurally rigid European defensive line without leaving themselves exposed to quick transitions. The objective for the South Korean side is to dictate a high tempo early, utilizing crisp ball movement and the elite pace of their frontline to stretch the opposition's shape.\r\n\r\nStrategically, the goal of this opening circuit is maximizing wide spaces to feed clean service into the penalty area while maintaining total defensive concentration. The tactical focus centers on utilizing high-pressing schemes in the middle third to disrupt Czech playmaking before it can establish a rhythm. Concurrently, the mission for the Czech Republic is to play with disciplined spatial organization, relying on their physical advantage and aerial dominance from set pieces to punish any defensive lapses. Entering a crucial tournament portal where early points drastically alter the path to the knockout rounds, both teams are hunting an error-free blueprint to secure their baseline.",
+      "strHomeTeam": "South Korea",
+      "strAwayTeam": "Czech Republic",
+      "intHomeScore": "2",
+      "intRound": "1",
+      "intAwayScore": "1",
+      "intSpectators": "44985",
+      "strOfficial": "",
+      "strWeather": "",
+      "dateEvent": "2026-06-12",
+      "dateEventLocal": "2026-06-11",
+      "strTime": "02:00:00",
+      "strTimeLocal": "20:00:00",
+      "strGroup": "A",
+      "idHomeTeam": "134517",
+      "strHomeTeamBadge": "https://r2.thesportsdb.com/images/media/team/badge/a8nqfs1589564916.png",
+      "idAwayTeam": "133904",
+      "strAwayTeamBadge": "https://r2.thesportsdb.com/images/media/team/badge/1o0cx31654205806.png",
+      "intScore": null,
+      "intScoreVotes": null,
+      "strResult": "South Korea displayed exceptional competitive resilience under immense structural pressure, executing a thrilling second-half turnaround to secure a gritty 2-1 victory over the Czech Republic at Estadio Guadalajara. Refusing to let an unexpected deficit derail their tournament launch, the Taegeuk Warriors relied on clinical late execution to claim all three points in their opening Group A encounter.  \r\n\r\nA highly conservative first half saw both teams struggle to generate clean looks in the final third, leaving the match locked in a tactical stalemate at the interval. The match exploded into life in the 58th minute when Czech captain Ladislav Krejčí broke the deadlock against the run of play, rising highest to redirect a trademark long throw-in from Vladimír Coufal past goalkeeper Kim Seung-gyu.  \r\n\r\nThe European advantage proved short-lived as South Korea responded with immense attacking urgency. In the 66th minute, midfielder Hwang In-beom clinical showcased his composure inside the penalty box, feinting past two defenders before dinking a beautiful equalizer over the goalkeeper. Tensions peaked in the 77th minute when Tomáš Souček appeared to restore the Czech lead with a firm header, but a quick VAR review chalked the goal off for offside. Capitalizing on the momentum shift just three minutes later, Hwang turned provider by sliding a perfect pass to substitute Oh Hyeon-gyu, who fired home a powerful close-range strike to seal the dramatic comeback victory.",
+      "idVenue": "17548",
+      "strVenue": "Estadio Akron",
+      "strCountry": "Mexico",
+      "strCity": "Zapopan, JA",
+      "strPoster": "https://r2.thesportsdb.com/images/media/event/poster/1lvv8d1775110757.jpg",
+      "strSquare": "",
+      "strFanart": "https://www.thesportsdb.com/images/media/event/fanart/feadjt1781245662.jpg",
+      "strThumb": "https://r2.thesportsdb.com/images/media/event/thumb/7ogw2s1775058371.jpg",
+      "strBanner": "https://r2.thesportsdb.com/images/media/event/banner/pmdsy01775111152.jpg",
+      "strMap": null,
+      "strTweet1": "",
+      "strVideo": "",
+      "strStatus": "FT",
+      "strPostponed": "no",
+      "strLocked": "unlocked"
+    }
+  ],
+  "queries": {
+    "2026-06-11": {
+      "summary": {
+        "event_count": 1,
+        "keys": [
+          "dateEvent",
+          "dateEventLocal",
+          "idAPIfootball",
+          "idAwayTeam",
+          "idEvent",
+          "idHomeTeam",
+          "idLeague",
+          "idVenue",
+          "intAwayScore",
+          "intHomeScore",
+          "intRound",
+          "intScore",
+          "intScoreVotes",
+          "intSpectators",
+          "strAwayTeam",
+          "strAwayTeamBadge",
+          "strBanner",
+          "strCity",
+          "strCountry",
+          "strDescriptionEN",
+          "strEvent",
+          "strEventAlternate",
+          "strFanart",
+          "strFilename",
+          "strGroup",
+          "strHomeTeam",
+          "strHomeTeamBadge",
+          "strLeague",
+          "strLeagueBadge",
+          "strLocked",
+          "strMap",
+          "strOfficial",
+          "strPoster",
+          "strPostponed",
+          "strResult",
+          "strSeason",
+          "strSport",
+          "strSquare",
+          "strStatus",
+          "strThumb",
+          "strTime",
+          "strTimeLocal",
+          "strTimestamp",
+          "strTweet1",
+          "strVenue",
+          "strVideo",
+          "strWeather"
+        ],
+        "statuses": {
+          "FT": 1
+        },
+        "rounds": {
+          "1": 1
+        },
+        "sample": [
+          {
+            "idEvent": "2391728",
+            "dateEvent": "2026-06-11",
+            "intRound": "1",
+            "strEvent": "Mexico vs South Africa",
+            "strStatus": "FT",
+            "intHomeScore": "2",
+            "intAwayScore": "0"
+          }
+        ]
+      },
+      "events": [
+        {
+          "idEvent": "2391728",
+          "dateEvent": "2026-06-11",
+          "dateEventLocal": "2026-06-11",
+          "strTime": "19:00:00",
+          "strTimeLocal": "13:00:00",
+          "intRound": "1",
+          "strGroup": "A",
+          "strEvent": "Mexico vs South Africa",
+          "strHomeTeam": "Mexico",
+          "strAwayTeam": "South Africa",
+          "strStatus": "FT",
+          "intHomeScore": "2",
+          "intAwayScore": "0"
+        }
+      ]
+    },
+    "2026-06-12": {
+      "summary": {
+        "event_count": 2,
+        "keys": [
+          "dateEvent",
+          "dateEventLocal",
+          "idAPIfootball",
+          "idAwayTeam",
+          "idEvent",
+          "idHomeTeam",
+          "idLeague",
+          "idVenue",
+          "intAwayScore",
+          "intHomeScore",
+          "intRound",
+          "intScore",
+          "intScoreVotes",
+          "intSpectators",
+          "strAwayTeam",
+          "strAwayTeamBadge",
+          "strBanner",
+          "strCity",
+          "strCountry",
+          "strDescriptionEN",
+          "strEvent",
+          "strEventAlternate",
+          "strFanart",
+          "strFilename",
+          "strGroup",
+          "strHomeTeam",
+          "strHomeTeamBadge",
+          "strLeague",
+          "strLeagueBadge",
+          "strLocked",
+          "strMap",
+          "strOfficial",
+          "strPoster",
+          "strPostponed",
+          "strResult",
+          "strSeason",
+          "strSport",
+          "strSquare",
+          "strStatus",
+          "strThumb",
+          "strTime",
+          "strTimeLocal",
+          "strTimestamp",
+          "strTweet1",
+          "strVenue",
+          "strVideo",
+          "strWeather"
+        ],
+        "statuses": {
+          "FT": 1,
+          "NS": 1
+        },
+        "rounds": {
+          "1": 2
+        },
+        "sample": [
+          {
+            "idEvent": "2461103",
+            "dateEvent": "2026-06-12",
+            "intRound": "1",
+            "strEvent": "South Korea vs Czech Republic",
+            "strStatus": "FT",
+            "intHomeScore": "2",
+            "intAwayScore": "1"
+          },
+          {
+            "idEvent": "2461104",
+            "dateEvent": "2026-06-12",
+            "intRound": "1",
+            "strEvent": "Canada vs Bosnia-Herzegovina",
+            "strStatus": "NS",
+            "intHomeScore": null,
+            "intAwayScore": null
+          }
+        ]
+      },
+      "events": [
+        {
+          "idEvent": "2461103",
+          "dateEvent": "2026-06-12",
+          "dateEventLocal": "2026-06-11",
+          "strTime": "02:00:00",
+          "strTimeLocal": "20:00:00",
+          "intRound": "1",
+          "strGroup": "A",
+          "strEvent": "South Korea vs Czech Republic",
+          "strHomeTeam": "South Korea",
+          "strAwayTeam": "Czech Republic",
+          "strStatus": "FT",
+          "intHomeScore": "2",
+          "intAwayScore": "1"
+        },
+        {
+          "idEvent": "2461104",
+          "dateEvent": "2026-06-12",
+          "dateEventLocal": "2026-06-12",
+          "strTime": "19:00:00",
+          "strTimeLocal": "15:00:00",
+          "intRound": "1",
+          "strGroup": "B",
+          "strEvent": "Canada vs Bosnia-Herzegovina",
+          "strHomeTeam": "Canada",
+          "strAwayTeam": "Bosnia-Herzegovina",
+          "strStatus": "NS",
+          "intHomeScore": null,
+          "intAwayScore": null
+        }
+      ]
+    }
+  },
+  "parsed_matches": [
+    {
+      "matchid": 2391728,
+      "group": "A",
+      "roundnumber": 1,
+      "ronda": "grupos",
+      "fecha": "11.06.2026",
+      "home_team": "Mexico",
+      "away_team": "South Africa",
+      "home_score": 2,
+      "away_score": 0,
+      "home_score_90": 2,
+      "away_score_90": 0,
+      "pasa": null,
+      "status": "FT"
+    },
+    {
+      "matchid": 2461103,
+      "group": "A",
+      "roundnumber": 1,
+      "ronda": "3RD",
+      "fecha": "12.06.2026",
+      "home_team": "South Korea",
+      "away_team": "Czech Republic",
+      "home_score": 2,
+      "away_score": 1,
+      "home_score_90": 2,
+      "away_score_90": 1,
+      "pasa": null,
+      "status": "FT"
+    },
+    {
+      "matchid": 2461104,
+      "group": "B",
+      "roundnumber": 1,
+      "ronda": "grupos",
+      "fecha": "12.06.2026",
+      "home_team": "Canada",
+      "away_team": "Bosnia-Herzegovina",
+      "home_score": null,
+      "away_score": null,
+      "home_score_90": null,
+      "away_score_90": null,
+      "pasa": null,
+      "status": "NS"
+    }
+  ]
+}
