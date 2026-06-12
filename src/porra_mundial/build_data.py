@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 from dataclasses import replace
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 import os
 import re
 import unicodedata
@@ -213,22 +213,35 @@ def _load_matches(
     base_matches = [Match.from_dict(match) for match in inputs.get("partidos", [])]
     matches = _merge_previous_scores(base_matches, previous_payload)
     target_date = _normalize_date(build_date or _build_date())
-    expected_today = [match for match in matches if _normalize_date(match.fecha) == target_date]
+    fetch_dates = _sportsdb_fetch_dates(target_date)
+    expected_today = [match for match in matches if _normalize_date(match.fecha) in fetch_dates]
     alerts: list[str] = []
 
     if not expected_today:
         return matches, False, alerts
 
     try:
-        payload = fetch_world_cup_events_for_date(target_date)
-        parsed = parse_events(payload)
+        parsed = []
+        for fetch_date in fetch_dates:
+            payload = fetch_world_cup_events_for_date(fetch_date)
+            parsed.extend(parse_events(payload))
         if parsed:
             patched, merge_alerts = _merge_live_scores(matches, parsed, expected_today=expected_today)
             return patched, True, merge_alerts
-        alerts.append(f"SportsDB no devolvió eventos para {target_date}. Esperados: {len(expected_today)}.")
+        alerts.append(
+            f"SportsDB no devolvió eventos para {', '.join(fetch_dates)}. Esperados: {len(expected_today)}."
+        )
     except Exception as exc:
-        alerts.append(f"No se pudo consultar SportsDB para {target_date}: {exc}")
+        alerts.append(f"No se pudo consultar SportsDB para {', '.join(fetch_dates)}: {exc}")
     return matches, False, alerts
+
+
+def _sportsdb_fetch_dates(target_date: str) -> list[str]:
+    date = datetime.fromisoformat(_normalize_date(target_date)).date()
+    return [
+        (date - timedelta(days=1)).isoformat(),
+        date.isoformat(),
+    ]
 
 
 def _merge_previous_scores(

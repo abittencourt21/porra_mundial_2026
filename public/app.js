@@ -566,7 +566,7 @@ function renderGroupTable(group) {
               <td class="num">${row.G}</td>
               <td class="num">${row.E}</td>
               <td class="num">${row.P}</td>
-              <td class="num">${row.GF - row.GC}</td>
+              <td class="num">${row.DG}</td>
               <td class="num gold">${row.Pts}</td>
             </tr>
           `).join("")}
@@ -822,7 +822,7 @@ function standings(group) {
   const rows = {};
   DATA.partidos.filter((match) => match.group === group).forEach((match) => {
     [match.home_team, match.away_team].forEach((team) => {
-      if (!rows[team]) rows[team] = { team, PJ: 0, G: 0, E: 0, P: 0, GF: 0, GC: 0, Pts: 0 };
+      if (!rows[team]) rows[team] = { team, PJ: 0, G: 0, E: 0, P: 0, GF: 0, GC: 0, DG: 0, Pts: 0 };
     });
     const hs = scoreValue(match.home_score);
     const as = scoreValue(match.away_score);
@@ -832,12 +832,14 @@ function standings(group) {
     home.PJ++; away.PJ++;
     home.GF += hs; home.GC += as;
     away.GF += as; away.GC += hs;
+    home.DG += hs - as;
+    away.DG += as - hs;
     if (hs > as) { home.G++; home.Pts += 3; away.P++; }
     else if (as > hs) { away.G++; away.Pts += 3; home.P++; }
     else { home.E++; away.E++; home.Pts++; away.Pts++; }
   });
   return Object.values(rows).sort((a, b) =>
-    b.Pts - a.Pts || (b.GF - b.GC) - (a.GF - a.GC) || b.GF - a.GF || a.team.localeCompare(b.team)
+    b.Pts - a.Pts || b.DG - a.DG || b.GF - a.GF || a.team.localeCompare(b.team)
   );
 }
 
