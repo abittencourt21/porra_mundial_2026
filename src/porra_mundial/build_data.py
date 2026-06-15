@@ -10,7 +10,7 @@ import unicodedata
 from pathlib import Path
 from typing import Any
 from urllib.request import urlopen
-from zoneinfo import ZoneInfo
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from .models import Match
 from .scoring import build_datos_json
@@ -20,38 +20,53 @@ from .sportsdb import fetch_world_cup_events_for_date, parse_events
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_PREVIOUS_DATOS_URL = "https://abittencourt21.github.io/porra_mundial_2026/datos.json"
-LOCAL_TIMEZONE = ZoneInfo("Europe/Madrid")
+try:
+    LOCAL_TIMEZONE = ZoneInfo("Europe/Madrid")
+except ZoneInfoNotFoundError:
+    LOCAL_TIMEZONE = datetime.now().astimezone().tzinfo or timezone.utc
 
-TEAM_ALIASES = {
+_RAW_TEAM_ALIASES = {
     "argentina": "argentina",
     "algeria": "argelia",
     "argelia": "argelia",
     "australia": "australia",
     "austria": "austria",
     "belgica": "belgica",
+    "bélgica": "belgica",
     "belgium": "belgica",
     "bosnia and herzegovina": "bosnia y herzegovina",
     "bosnia herzegovina": "bosnia y herzegovina",
+    "bosnia-herzegovina": "bosnia y herzegovina",
+    "bosnia & herzegovina": "bosnia y herzegovina",
     "bosnia y herzegovina": "bosnia y herzegovina",
     "brazil": "brasil",
     "brasil": "brasil",
     "canada": "canada",
+    "canadá": "canada",
     "cape verde": "cabo verde",
     "cabo verde": "cabo verde",
     "catar": "catar",
     "colombia": "colombia",
     "corea del sur": "corea del sur",
     "cote d ivoire": "costa de marfil",
+    "côte d'ivoire": "costa de marfil",
+    "côte d’ivoire": "costa de marfil",
+    "cote divoire": "costa de marfil",
+    "côte divoire": "costa de marfil",
     "costa de marfil": "costa de marfil",
     "croatia": "croacia",
     "croacia": "croacia",
     "curacao": "curazao",
+    "curaçao": "curazao",
     "curazao": "curazao",
+    "czech rep": "chequia",
     "czech republic": "chequia",
     "czechia": "chequia",
     "chequia": "chequia",
     "democratic republic of congo": "rd congo",
+    "congo dr": "rd congo",
     "dr congo": "rd congo",
+    "d r congo": "rd congo",
     "rd congo": "rd congo",
     "ecuador": "ecuador",
     "egypt": "egipto",
@@ -73,43 +88,71 @@ TEAM_ALIASES = {
     "jordan": "jordania",
     "jordania": "jordania",
     "mexico": "mexico",
+    "méxico": "mexico",
     "morocco": "marruecos",
     "marruecos": "marruecos",
     "netherlands": "paises bajos",
+    "países bajos": "paises bajos",
+    "holland": "paises bajos",
     "paises bajos": "paises bajos",
     "new zealand": "nueva zelanda",
     "nueva zelanda": "nueva zelanda",
     "norway": "noruega",
     "noruega": "noruega",
     "panama": "panama",
+    "panamá": "panama",
     "paraguay": "paraguay",
     "portugal": "portugal",
     "qatar": "catar",
     "saudi arabia": "arabia saudi",
     "arabia saudi": "arabia saudi",
+    "arabia saudí": "arabia saudi",
     "scotland": "escocia",
     "escocia": "escocia",
     "senegal": "senegal",
     "south africa": "sudafrica",
     "sudafrica": "sudafrica",
+    "sudáfrica": "sudafrica",
     "korea republic": "corea del sur",
+    "republic of korea": "corea del sur",
+    "korea south": "corea del sur",
     "south korea": "corea del sur",
     "spain": "espana",
+    "españa": "espana",
     "espana": "espana",
     "suecia": "suecia",
     "sweden": "suecia",
     "switzerland": "suiza",
     "suiza": "suiza",
     "tunisia": "tunez",
+    "túnez": "tunez",
     "tunez": "tunez",
     "turkey": "turquia",
+    "türkiye": "turquia",
     "turkiye": "turquia",
+    "turquía": "turquia",
     "turquia": "turquia",
     "united states": "estados unidos",
+    "united states of america": "estados unidos",
+    "us": "estados unidos",
     "usa": "estados unidos",
     "estados unidos": "estados unidos",
     "uruguay": "uruguay",
     "uzbekistan": "uzbekistan",
+    "uzbekistán": "uzbekistan",
+}
+
+
+def _normalize_team_text(value: Any) -> str:
+    text = str(value or "").casefold().strip()
+    normalized = unicodedata.normalize("NFKD", text)
+    cleaned = "".join(ch for ch in normalized if unicodedata.category(ch) != "Mn")
+    return re.sub(r"[^a-z0-9]+", " ", cleaned).strip()
+
+
+TEAM_ALIASES = {
+    _normalize_team_text(alias): _normalize_team_text(canonical)
+    for alias, canonical in _RAW_TEAM_ALIASES.items()
 }
 
 
@@ -239,6 +282,7 @@ def _load_matches(
 def _sportsdb_fetch_dates(target_date: str) -> list[str]:
     date = datetime.fromisoformat(_normalize_date(target_date)).date()
     return [
+        (date - timedelta(days=2)).isoformat(),
         (date - timedelta(days=1)).isoformat(),
         date.isoformat(),
     ]
@@ -575,10 +619,7 @@ def _to_int(value: Any) -> int | None:
 
 
 def _team_key(value: Any) -> str:
-    text = str(value or "").casefold().strip()
-    normalized = unicodedata.normalize("NFD", text)
-    cleaned = "".join(ch for ch in normalized if unicodedata.category(ch) != "Mn")
-    cleaned = re.sub(r"[^a-z0-9]+", " ", cleaned).strip()
+    cleaned = _normalize_team_text(value)
     return TEAM_ALIASES.get(cleaned, cleaned)
 
 
