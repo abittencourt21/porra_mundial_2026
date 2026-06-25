@@ -33,8 +33,19 @@ def fetch_world_cup_events_for_date(date: str) -> dict:
         return json.loads(response.read().decode("utf-8"))
 
 
+def search_events(event_name: str, date: str | None = None) -> dict:
+    """Busca eventos por titulo, opcionalmente acotados por fecha."""
+    params = {"e": event_name}
+    if date:
+        params["d"] = date
+    query = urlencode(params)
+    url = f"{BASE_URL}/searchevents.php?{query}"
+    with urlopen(url, timeout=30) as response:
+        return json.loads(response.read().decode("utf-8"))
+
+
 def parse_events(payload: dict[str, Any]) -> list[Match]:
-    return [parse_event(event) for event in payload.get("events") or []]
+    return [parse_event(event) for event in payload.get("events") or payload.get("event") or []]
 
 
 def parse_event(event: dict[str, Any]) -> Match:
