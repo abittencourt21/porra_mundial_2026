@@ -144,6 +144,8 @@ let rankingSearch = "";
 let rankingSort = "rank";
 let historyAliases = new Set();
 let historyAllSelected = true;
+let historyHoverAlias = "";
+let historyPinnedAlias = "";
 let restoreRankingSearchFocus = false;
 let selectionBombo = 0;
 let selectionGroup = "";
@@ -445,9 +447,12 @@ function renderRankingHistory(visibleParticipants) {
   if (historyAllSelected) historyAliases = new Set(visibleAliases);
   else historyAliases = new Set([...historyAliases].filter((alias) => visibleAliases.includes(alias)));
   const aliases = [...historyAliases];
+  if (historyPinnedAlias && !aliases.includes(historyPinnedAlias)) historyPinnedAlias = "";
+  if (historyHoverAlias && !aliases.includes(historyHoverAlias)) historyHoverAlias = "";
+  const focusAlias = historyHoverAlias || historyPinnedAlias;
   const allVisibleSelected = visibleAliases.length > 0 && aliases.length === visibleAliases.length;
   const historyAction = allVisibleSelected ? "clear" : "all";
-  const checkpoints = [...new Map(history.map((row) => [row.checkpoint, row.label || row.checkpoint])).entries()];
+  const checkpoints = rankingHistoryCheckpoints(history);
   const rows = history.filter((row) => aliases.includes(row.alias));
   const maxRank = Math.max(1, ...history.map((row) => Number(row.posicion) || 1));
   return `
@@ -464,14 +469,22 @@ function renderRankingHistory(visibleParticipants) {
             <span aria-hidden="true">${historyAction === "clear" ? "×" : "✓"}</span> ${historyAction === "clear" ? "Limpiar selección" : "Seleccionar todo"}
           </button>
         </div>
-        ${visibleAliases.map((alias) => `<button class="history-chip ${aliases.includes(alias) ? "active" : ""}" data-history-alias="${escapeAttr(alias)}">${escapeHtml(alias)}</button>`).join("")}
+        ${visibleAliases.map((alias) => `<button class="history-chip ${aliases.includes(alias) ? "active" : ""} ${focusAlias === alias ? "focus" : ""}" data-history-alias="${escapeAttr(alias)}">${escapeHtml(alias)}</button>`).join("")}
       </div>
-      <div class="history-chart">${historySvg(rows, checkpoints, aliases, maxRank)}</div>
+      <div class="history-chart">${historySvg(rows, checkpoints, aliases, maxRank, focusAlias)}</div>
     </section>
   `;
 }
 
-function historySvg(rows, checkpoints, aliases, maxRank) {
+function rankingHistoryCheckpoints(history) {
+  const fixed = DATA.meta.ranking_checkpoints || [];
+  if (fixed.length) {
+    return fixed.map((row) => [row.checkpoint, row.label || row.checkpoint]);
+  }
+  return [...new Map(history.map((row) => [row.checkpoint, row.label || row.checkpoint])).entries()];
+}
+
+function historySvg(rows, checkpoints, aliases, maxRank, focusAlias = "") {
   if (!rows.length || !checkpoints.length) return `<div class="empty">Todavía no hay histórico suficiente.</div>`;
   const width = Math.max(760, checkpoints.length * 142);
   const height = 300;
@@ -504,13 +517,17 @@ function historySvg(rows, checkpoints, aliases, maxRank) {
         const points = plotted.map((point) => `${point.px},${point.py}`);
         const last = plotted.at(-1);
         const color = colors[aliasIndex % colors.length];
+        const isFocused = focusAlias === alias;
+        const isMuted = Boolean(focusAlias) && !isFocused;
         return `
-          <polyline points="${points.join(" ")}" fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+          <g class="history-series ${isFocused ? "active" : ""} ${isMuted ? "muted" : ""}" data-history-focus="${escapeAttr(alias)}" tabindex="0" role="button" aria-label="Resaltar ${escapeAttr(alias)}">
+          <polyline points="${points.join(" ")}" fill="none" stroke="${color}" stroke-linecap="round" stroke-linejoin="round" />
           ${plotted.map((point) => `<circle cx="${point.px}" cy="${point.py}" r="4" fill="${color}"><title>${escapeHtml(alias)} · #${point.row.posicion} · ${point.row.puntos} puntos</title></circle>`).join("")}
           ${last ? `
             <line x1="${last.px + 6}" y1="${last.py}" x2="${last.px + 18}" y2="${last.py}" stroke="${color}" stroke-width="2" />
             <text x="${last.px + 22}" y="${last.py + 4}" fill="${color}" font-size="12" font-weight="800">${escapeHtml(alias)} · #${last.row.posicion}</text>
           ` : ""}
+          </g>
         `;
       }).join("")}
     </svg>
@@ -913,6 +930,41 @@ function bindEvents() {
         historyAllSelected = false;
         historyAliases = new Set();
       }
+      render();
+    });
+  });
+  document.querySelectorAll("[data-history-focus]").forEach((series) => {
+    const alias = series.dataset.historyFocus;
+    series.addEventListener("mouseenter", () => {
+      if (historyHoverAlias === alias) return;
+      historyHoverAlias = alias;
+      render();
+    });
+    series.addEventListener("mouseleave", () => {
+      if (!historyHoverAlias) return;
+      historyHoverAlias = "";
+      render();
+    });
+    series.addEventListener("focus", () => {
+      if (historyHoverAlias === alias) return;
+      historyHoverAlias = alias;
+      render();
+    });
+    series.addEventListener("blur", () => {
+      if (!historyHoverAlias) return;
+      historyHoverAlias = "";
+      render();
+    });
+    series.addEventListener("click", () => {
+      historyPinnedAlias = historyPinnedAlias === alias ? "" : alias;
+      historyHoverAlias = "";
+      render();
+    });
+    series.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      historyPinnedAlias = historyPinnedAlias === alias ? "" : alias;
+      historyHoverAlias = "";
       render();
     });
   });

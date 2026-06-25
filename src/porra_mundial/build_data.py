@@ -15,7 +15,7 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 from .models import Match
 from .scoring import build_datos_json
 from .sheets import load_public_tsv_inputs, load_sheet_inputs
-from .sportsdb import fetch_world_cup_events_for_date, parse_events
+from .sportsdb import fetch_world_cup_events_for_date, parse_events, search_events
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -24,6 +24,19 @@ try:
     LOCAL_TIMEZONE = ZoneInfo("Europe/Madrid")
 except ZoneInfoNotFoundError:
     LOCAL_TIMEZONE = datetime.now().astimezone().tzinfo or timezone.utc
+RANKING_CHECKPOINTS = (
+    ("pre", "Pre"),
+    ("J1", "J1"),
+    ("J2", "J2"),
+    ("J3", "J3"),
+    ("R32", "R32"),
+    ("R16", "R16"),
+    ("QF", "QF"),
+    ("SF", "SF"),
+    ("F", "Final"),
+)
+RANKING_CHECKPOINT_IDS = {checkpoint for checkpoint, _label in RANKING_CHECKPOINTS}
+KO_CHECKPOINT_ORDER = {"R32": 4, "R16": 5, "QF": 6, "SF": 7, "F": 8}
 
 _RAW_TEAM_ALIASES = {
     "argentina": "argentina",
@@ -154,6 +167,41 @@ TEAM_ALIASES = {
     _normalize_team_text(alias): _normalize_team_text(canonical)
     for alias, canonical in _RAW_TEAM_ALIASES.items()
 }
+SPORTSDB_SEARCH_NAMES = {
+    "arabia saudi": "Saudi Arabia",
+    "belgica": "Belgium",
+    "bosnia y herzegovina": "Bosnia-Herzegovina",
+    "brasil": "Brazil",
+    "cabo verde": "Cape Verde",
+    "canada": "Canada",
+    "catar": "Qatar",
+    "chequia": "Czech Republic",
+    "colombia": "Colombia",
+    "corea del sur": "South Korea",
+    "costa de marfil": "Cote d'Ivoire",
+    "croacia": "Croatia",
+    "curazao": "Curacao",
+    "egipto": "Egypt",
+    "espana": "Spain",
+    "estados unidos": "USA",
+    "francia": "France",
+    "ghana": "Ghana",
+    "inglaterra": "England",
+    "irak": "Iraq",
+    "iran": "Iran",
+    "japon": "Japan",
+    "jordania": "Jordan",
+    "marruecos": "Morocco",
+    "mexico": "Mexico",
+    "nueva zelanda": "New Zealand",
+    "paises bajos": "Netherlands",
+    "panama": "Panama",
+    "rd congo": "DR Congo",
+    "sudafrica": "South Africa",
+    "tunez": "Tunisia",
+    "turquia": "Turkiye",
+    "uzbekistan": "Uzbekistan",
+}
 
 
 def main() -> None:
@@ -262,12 +310,15 @@ def _load_matches(
 
     if not expected_today:
         return matches, False, alerts
+    if all(_has_result(match) for match in expected_today):
+        return matches, False, alerts
 
     try:
         parsed = []
         for fetch_date in fetch_dates:
             payload = fetch_world_cup_events_for_date(fetch_date)
             parsed.extend(parse_events(payload))
+        parsed.extend(_search_missing_events(matches, parsed, expected_today))
         if parsed:
             patched, merge_alerts = _merge_live_scores(matches, parsed, expected_today=expected_today)
             return patched, True, merge_alerts
@@ -282,10 +333,34 @@ def _load_matches(
 def _sportsdb_fetch_dates(target_date: str) -> list[str]:
     date = datetime.fromisoformat(_normalize_date(target_date)).date()
     return [
-        (date - timedelta(days=2)).isoformat(),
         (date - timedelta(days=1)).isoformat(),
         date.isoformat(),
     ]
+
+
+def _search_missing_events(
+    seed_matches: list[Match],
+    live_matches: list[Match],
+    expected_today: list[Match],
+) -> list[Match]:
+    missing = _missing_expected_matches(seed_matches, live_matches, expected_today)
+    fallback_matches: list[Match] = []
+    for match in missing:
+        for event_name in _sportsdb_search_event_names(match):
+            try:
+                payload = search_events(event_name)
+            except Exception:
+                continue
+            parsed = parse_events(payload)
+            matched = [
+                live_match
+                for live_match in parsed
+                if _find_seed_match(seed_matches, live_match) is not None
+            ]
+            fallback_matches.extend(matched)
+            if matched:
+                break
+    return fallback_matches
 
 
 def _merge_previous_scores(
@@ -318,7 +393,6 @@ def _merge_live_scores(
 ) -> tuple[list[Match], list[str]]:
     patched = list(seed_matches)
     alerts: list[str] = []
-    matched_indexes: set[int] = set()
 
     for live_match in live_matches:
         match_index = _find_seed_match(patched, live_match)
@@ -328,17 +402,9 @@ def _merge_live_scores(
             )
             continue
         patched[match_index] = _patch_live_score(patched[match_index], live_match)
-        matched_indexes.add(match_index)
 
     if expected_today:
-        expected_indexes = {
-            index
-            for index, match in enumerate(seed_matches)
-            if any(match.matchid == expected.matchid for expected in expected_today)
-        }
-        missing = expected_indexes - matched_indexes
-        for index in sorted(missing):
-            match = seed_matches[index]
+        for match in _missing_expected_matches(seed_matches, live_matches, expected_today):
             alerts.append(
                 f"SportsDB no devolvió partido esperado: {match.home_team} vs {match.away_team} ({match.fecha})."
             )
@@ -360,6 +426,47 @@ def _find_seed_match(seed_matches: list[Match], live_match: Match) -> int | None
         candidates.append(index)
 
     return candidates[0] if len(candidates) == 1 else None
+
+
+def _missing_expected_matches(
+    seed_matches: list[Match],
+    live_matches: list[Match],
+    expected_today: list[Match],
+) -> list[Match]:
+    found_indexes = {
+        index
+        for live_match in live_matches
+        if (index := _find_seed_match(seed_matches, live_match)) is not None
+    }
+    return [
+        match
+        for index, match in enumerate(seed_matches)
+        if any(match.matchid == expected.matchid for expected in expected_today)
+        and index not in found_indexes
+        and not _has_result(match)
+    ]
+
+
+def _sportsdb_search_event_names(match: Match) -> list[str]:
+    home = _sportsdb_search_team_name(match.home_team)
+    away = _sportsdb_search_team_name(match.away_team)
+    if not home or not away:
+        return []
+    home_slug = _sportsdb_search_slug(home)
+    away_slug = _sportsdb_search_slug(away)
+    return [
+        f"{home_slug}_vs_{away_slug}",
+        f"{away_slug}_vs_{home_slug}",
+    ]
+
+
+def _sportsdb_search_team_name(value: Any) -> str:
+    team = _team_key(value)
+    return SPORTSDB_SEARCH_NAMES.get(team, str(value or "").strip())
+
+
+def _sportsdb_search_slug(value: str) -> str:
+    return re.sub(r"\s+", "_", value.strip())
 
 
 def _patch_live_score(seed_match: Match, live_match: Match) -> Match:
@@ -395,12 +502,17 @@ def _enrich_ranking(
     build_date: str,
 ) -> None:
     participants = payload.get("participantes", [])
-    previous_positions = _previous_positions(previous_payload)
-    current_positions: dict[str, int] = {}
+    checkpoint_id = _ranking_checkpoint_id(payload, build_date)
+    checkpoint_label = _ranking_checkpoint_label(payload, build_date)
+    previous_history = []
+    if previous_payload:
+        previous_history = _normalize_ranking_history(
+            previous_payload.get("meta", {}).get("ranking_history", [])
+        )
+    previous_positions = _previous_positions(previous_payload, checkpoint_id, previous_history)
 
     for index, participant in enumerate(participants, start=1):
         alias = str(participant.get("alias", ""))
-        current_positions[alias] = index
         previous_rank = previous_positions.get(alias)
         participant["rank_actual"] = index
         participant["rank_anterior"] = previous_rank
@@ -409,11 +521,6 @@ def _enrich_ranking(
             "sube" if previous_rank > index else "baja" if previous_rank < index else "igual"
         )
 
-    checkpoint_id = _ranking_checkpoint_id(payload, build_date)
-    checkpoint_label = _ranking_checkpoint_label(payload, build_date)
-    previous_history = []
-    if previous_payload:
-        previous_history = list(previous_payload.get("meta", {}).get("ranking_history", []))
     current_rows = [
         {
             "checkpoint": checkpoint_id,
@@ -428,15 +535,41 @@ def _enrich_ranking(
     payload["meta"]["ranking_history"] = [
         row for row in previous_history if row.get("checkpoint") != checkpoint_id
     ] + current_rows
+    payload["meta"]["ranking_checkpoints"] = [
+        {"checkpoint": checkpoint, "label": label}
+        for checkpoint, label in RANKING_CHECKPOINTS
+    ]
 
 
-def _previous_positions(previous_payload: dict[str, Any] | None) -> dict[str, int]:
-    if not previous_payload:
-        return {}
+def _previous_positions(
+    previous_payload: dict[str, Any] | None,
+    current_checkpoint: str,
+    previous_history: list[dict[str, Any]],
+) -> dict[str, int]:
     positions: dict[str, int] = {}
-    for index, participant in enumerate(previous_payload.get("participantes", []), start=1):
-        positions[str(participant.get("alias", ""))] = int(participant.get("rank_actual") or index)
+    if previous_payload:
+        for index, participant in enumerate(previous_payload.get("participantes", []), start=1):
+            positions[str(participant.get("alias", ""))] = int(participant.get("rank_actual") or index)
+    positions.update(_previous_checkpoint_positions(previous_history, current_checkpoint))
     return positions
+
+
+def _previous_checkpoint_positions(
+    previous_history: list[dict[str, Any]],
+    current_checkpoint: str,
+) -> dict[str, int]:
+    latest_checkpoint = ""
+    for row in previous_history:
+        checkpoint = str(row.get("checkpoint") or "")
+        if checkpoint and checkpoint != current_checkpoint:
+            latest_checkpoint = checkpoint
+    if not latest_checkpoint:
+        return {}
+    return {
+        str(row.get("alias", "")): int(row.get("posicion") or 0)
+        for row in previous_history
+        if row.get("checkpoint") == latest_checkpoint and row.get("alias") and row.get("posicion")
+    }
 
 
 def _ranking_checkpoint_id(payload: dict[str, Any], build_date: str) -> str:
@@ -447,24 +580,52 @@ def _ranking_checkpoint_id(payload: dict[str, Any], build_date: str) -> str:
     ]
     if not completed:
         return "pre"
-    latest_date = max(_normalize_date(match.fecha) for match in completed)
-    rounds = [
-        match.roundnumber
+
+    ko_rounds = [
+        match.ronda
         for match in completed
-        if _normalize_date(match.fecha) == latest_date and match.roundnumber is not None
+        if match.ronda in KO_CHECKPOINT_ORDER
     ]
-    if rounds:
-        return f"{latest_date}-J{max(rounds)}"
-    return latest_date or build_date
+    if ko_rounds:
+        return max(ko_rounds, key=lambda round_name: KO_CHECKPOINT_ORDER[round_name])
+
+    group_rounds = [
+        int(match.roundnumber)
+        for match in completed
+        if match.ronda == "grupos" and match.roundnumber is not None
+    ]
+    if group_rounds:
+        return f"J{min(max(group_rounds), 3)}"
+    return "pre"
 
 
 def _ranking_checkpoint_label(payload: dict[str, Any], build_date: str) -> str:
     checkpoint = _ranking_checkpoint_id(payload, build_date)
-    if checkpoint == "pre":
-        return "Pre"
+    labels = dict(RANKING_CHECKPOINTS)
+    return labels.get(checkpoint, checkpoint)
+
+
+def _normalize_ranking_history(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    normalized: dict[tuple[str, str], dict[str, Any]] = {}
+    for row in rows:
+        checkpoint = _normalize_ranking_checkpoint(row.get("checkpoint"))
+        alias = str(row.get("alias", ""))
+        if not checkpoint or not alias:
+            continue
+        patched = dict(row)
+        patched["checkpoint"] = checkpoint
+        patched["label"] = dict(RANKING_CHECKPOINTS).get(checkpoint, str(row.get("label") or checkpoint))
+        normalized[(checkpoint, alias)] = patched
+    return list(normalized.values())
+
+
+def _normalize_ranking_checkpoint(value: Any) -> str:
+    checkpoint = str(value or "").strip()
+    if checkpoint in RANKING_CHECKPOINT_IDS:
+        return checkpoint
     if "-J" in checkpoint:
-        return checkpoint.split("-", 3)[-1]
-    return checkpoint
+        return checkpoint.rsplit("-", 1)[-1]
+    return checkpoint if checkpoint in RANKING_CHECKPOINT_IDS else ""
 
 
 def _apply_overrides(

@@ -1,6 +1,6 @@
 import unittest
 
-from porra_mundial.sportsdb import parse_event, summarize_payload
+from porra_mundial.sportsdb import parse_event, parse_events, summarize_payload
 
 
 class SportsDbTests(unittest.TestCase):
@@ -64,6 +64,23 @@ class SportsDbTests(unittest.TestCase):
         self.assertEqual(summary["rounds"], {"1": 2})
         self.assertEqual(summary["statuses"], {"FT": 1, "NS": 1})
         self.assertIn("strEvent", summary["keys"])
+
+    def test_parse_events_accepts_search_event_payload(self):
+        matches = parse_events(
+            {
+                "event": [
+                    {
+                        "idEvent": "2391728",
+                        "strHomeTeam": "Mexico",
+                        "strAwayTeam": "South Africa",
+                        "dateEvent": "2026-06-11",
+                    }
+                ]
+            }
+        )
+
+        self.assertEqual(len(matches), 1)
+        self.assertEqual(matches[0].matchid, 2391728)
 
 
 if __name__ == "__main__":

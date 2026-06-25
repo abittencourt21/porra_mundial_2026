@@ -917,10 +917,63 @@ td.center, th.center { text-align: center; }
   border-color: var(--usa);
 }
 
+.history-chart svg {
+  overflow: visible;
+}
+
+.history-series {
+  cursor: pointer;
+  outline: none;
+  transition: opacity .16s ease;
+}
+
+.history-series polyline {
+  stroke-width: 3;
+  transition: stroke-width .16s ease, opacity .16s ease;
+}
+
+.history-series circle {
+  r: 4px;
+  transition: r .16s ease, opacity .16s ease;
+}
+
+.history-series line {
+  stroke-width: 2;
+}
+
+.history-series text {
+  font-size: 12px;
+  font-weight: 800;
+  transition: opacity .16s ease;
+}
+
+.history-series.muted {
+  opacity: .2;
+}
+
+.history-series.active polyline,
+.history-series:focus-visible polyline {
+  stroke-width: 6;
+}
+
+.history-series.active circle,
+.history-series:focus-visible circle {
+  r: 6px;
+}
+
+.history-series:focus-visible {
+  filter: drop-shadow(0 0 5px rgba(0, 87, 216, .45));
+}
+
 .history-chip.active {
   border-color: var(--usa);
   color: #ffffff;
   background: var(--usa);
+}
+
+.history-chip.focus {
+  border-color: var(--gold-bright);
+  box-shadow: 0 0 0 2px rgba(201, 154, 46, .2);
 }
 
 .team-label {

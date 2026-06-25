@@ -6,9 +6,9 @@ on:
   workflow_dispatch:
   schedule:
     # GitHub Actions usa UTC. Durante el Mundial, Madrid esta en UTC+2.
-    # Horas calculadas como inicio del partido + 2h segun SportsDB:
-    # 20, 21, 23, 00, 02, 03, 05, 06 y 08 en Europe/Madrid.
-    - cron: "0 0,1,3,4,6,18,19,21,22 * * *"
+    # Ejecuciones: 00:30, 03:30, 06:30 y 08:30 Europe/Madrid.
+    - cron: "30 1,4,6 * * *"
+    - cron: "30 22 * * *"
 
 permissions:
   contents: read

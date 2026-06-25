@@ -96,11 +96,17 @@ Secrets recomendados en GitHub:
 
 No hace falta una key de TheSportsDB con la configuracion actual; el codigo usa el endpoint publico `json/3`.
 
-El build solo consulta SportsDB para los partidos de la fecha de ejecucion. Los
-resultados de dias anteriores se conservan leyendo el `datos.json` publicado en
-Pages. Si SportsDB devuelve menos partidos de los esperados o cambia nombres de
-selecciones, se anade una alerta en `meta.alertas` y se muestra en la pestana de
-clasificacion.
+El build solo consulta SportsDB para los partidos de la fecha de ejecucion y el
+dia anterior. Los resultados mas antiguos se conservan leyendo el `datos.json`
+publicado en Pages. Si un partido esperado no aparece en la respuesta diaria, el
+build intenta buscarlo por nombre de selecciones con `searchevents.php?e=...`
+antes de aplicar overrides manuales. No se envia `d=...` en ese fallback porque
+algunos partidos aparecen en SportsDB con `dateEvent` UTC del dia siguiente pero
+con `dateEventLocal` correcto. Para cuidar el limite diario de la API, si los
+partidos de la ventana ya tienen marcador conservado desde `datos.json`, el
+build no vuelve a consultar SportsDB para esa ventana. Si SportsDB devuelve menos
+partidos de los esperados o cambia nombres de selecciones, se anade una alerta
+en `meta.alertas` y se muestra en la pestana de clasificacion.
 
 ## Overrides manuales
 
