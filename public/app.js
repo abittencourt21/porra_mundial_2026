@@ -136,6 +136,7 @@ const ROUND_LABEL = {
   F: "Final",
 };
 const ROUND_ORDER = { R32: 1, R16: 2, QF: 3, SF: 4, "3RD": 5, F: 6 };
+const SCORED_KO_ROUNDS = new Set(["R32", "R16", "QF", "SF", "F"]);
 
 let DATA = null;
 let activeTab = "porra";
@@ -367,7 +368,7 @@ function renderSelections() {
       <table>
         <thead>
           <tr>
-            <th>#</th><th>Selección</th><th class="center">Bombo</th><th class="center">Grupo</th><th class="num">Grupos</th><th class="num">KO res</th><th class="num">KO pase</th><th class="num">Total</th>
+            <th>#</th><th>Selección</th><th class="center">Bombo</th><th class="center">Grupo</th><th class="num">Grupos</th><th class="num">KO Result.</th><th class="num">KO pase</th><th class="num">Total</th>
           </tr>
         </thead>
         <tbody>
@@ -561,7 +562,7 @@ function renderGroups() {
   const groups = [...new Set(DATA.partidos.filter((match) => match.group).map((match) => match.group))].sort();
   if (!groups.length) return `<div class="empty">Todavía no hay grupos cargados.</div>`;
   return `
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px">
+    <div class="groups-grid">
       ${groups.map((group) => renderGroupTable(group)).join("")}
     </div>
   `;
@@ -570,8 +571,8 @@ function renderGroups() {
 function renderGroupTable(group) {
   const table = standings(group);
   return `
-    <div class="card">
-      <table>
+    <div class="card group-card">
+      <table class="group-table">
         <thead><tr><th colspan="8" style="color:var(--gold-bright)">Grupo ${escapeHtml(group)}</th></tr></thead>
         <tbody>
           <tr><th>#</th><th>Selección</th><th class="num">PJ</th><th class="num">G</th><th class="num">E</th><th class="num">P</th><th class="num">DG</th><th class="num">Pts</th></tr>
@@ -795,6 +796,7 @@ function computeTeamScores() {
     ko_resultado: 0,
     ko_pase: 0,
     total: 0,
+    reachedRounds: new Set(),
   }));
   const byName = {};
   teams.forEach((team) => {
@@ -807,10 +809,14 @@ function computeTeamScores() {
       if (!row) return;
       const [gf, gc] = goalsFor(match, teamName, match.ronda !== "grupos");
       const points = resultPoints(gf, gc);
-      if (match.ronda === "grupos") row.grupos += points;
-      else {
+      if (match.ronda === "grupos") {
+        row.grupos += points;
+      } else if (SCORED_KO_ROUNDS.has(match.ronda)) {
         row.ko_resultado += points;
-        if (looseTeamKey(match.pasa) === looseTeamKey(teamName)) row.ko_pase += row.bombo;
+        if (!row.reachedRounds.has(match.ronda)) {
+          row.reachedRounds.add(match.ronda);
+          row.ko_pase += row.bombo;
+        }
       }
       row.total = row.grupos + row.ko_resultado + row.ko_pase;
     });
