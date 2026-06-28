@@ -41,6 +41,7 @@ def score_participant(
         team: TeamScore(team=team, bombo=team_bombos[team])
         for team in participant.equipos
     }
+    reached_rounds = {team: set() for team in participant.equipos}
 
     for match in parsed_matches:
         for team, score in team_scores.items():
@@ -52,10 +53,12 @@ def score_participant(
             elif match.ronda in KO_ROUNDS:
                 gf, gc = _goals_for_team(match, team, use_90=True)
                 pts_resultado = result_points(gf, gc)
-                pts_pase = score.bombo if match.pasa == team else 0
+                reached_round = match.ronda not in reached_rounds[team]
+                pts_pase = score.bombo if reached_round else 0
                 score.ko_result_pts += pts_resultado
                 score.ko_pass_pts += pts_pase
-                if pts_pase:
+                if reached_round:
+                    reached_rounds[team].add(match.ronda)
                     score.rondas_pasadas.append(match.ronda)
                 score.ko_det.append(
                     {
@@ -65,7 +68,7 @@ def score_participant(
                         "gc": gc,
                         "pts_resultado": pts_resultado,
                         "pts_pase": pts_pase,
-                        "paso": match.pasa == team,
+                        "paso": reached_round,
                     }
                 )
 
