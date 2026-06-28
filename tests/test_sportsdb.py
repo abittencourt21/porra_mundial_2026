@@ -50,6 +50,41 @@ class SportsDbTests(unittest.TestCase):
         self.assertEqual(match.home_score, 2)
         self.assertEqual(match.away_score, 1)
 
+    def test_parse_event_maps_knockout_round_and_winner(self):
+        match = parse_event(
+            {
+                "idEvent": "2499618",
+                "strEvent": "South Africa vs Canada",
+                "strHomeTeam": "South Africa",
+                "strAwayTeam": "Canada",
+                "intRound": "32",
+                "intHomeScore": "1",
+                "intAwayScore": "2",
+                "dateEvent": "2026-06-28",
+                "strGroup": "",
+                "strStatus": "FT",
+            }
+        )
+
+        self.assertEqual(match.ronda, "R32")
+        self.assertEqual(match.pasa, "Canada")
+
+    def test_parse_event_maps_sportsdb_late_knockout_rounds(self):
+        expected = {125: "QF", 150: "SF", 160: "3RD", 200: "F"}
+        for round_number, ronda in expected.items():
+            with self.subTest(round_number=round_number):
+                match = parse_event(
+                    {
+                        "idEvent": str(round_number),
+                        "strHomeTeam": "A",
+                        "strAwayTeam": "B",
+                        "intRound": str(round_number),
+                        "dateEvent": "2026-07-01",
+                        "strStatus": "NS",
+                    }
+                )
+                self.assertEqual(match.ronda, ronda)
+
     def test_summarize_payload_reports_api_shape(self):
         summary = summarize_payload(
             {

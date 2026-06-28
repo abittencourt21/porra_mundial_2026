@@ -12,10 +12,15 @@ from typing import Any
 from urllib.request import urlopen
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-from .models import Match
+from .models import KO_ROUNDS, Match
 from .scoring import build_datos_json
 from .sheets import load_public_tsv_inputs, load_sheet_inputs
-from .sportsdb import fetch_world_cup_events_for_date, parse_events, search_events
+from .sportsdb import (
+    fetch_world_cup_events_for_date,
+    fetch_world_cup_events_for_round,
+    parse_events,
+    search_events,
+)
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -178,7 +183,7 @@ SPORTSDB_SEARCH_NAMES = {
     "chequia": "Czech Republic",
     "colombia": "Colombia",
     "corea del sur": "South Korea",
-    "costa de marfil": "Cote d'Ivoire",
+    "costa de marfil": "Ivory Coast",
     "croacia": "Croatia",
     "curazao": "Curacao",
     "egipto": "Egypt",
@@ -199,9 +204,13 @@ SPORTSDB_SEARCH_NAMES = {
     "rd congo": "DR Congo",
     "sudafrica": "South Africa",
     "tunez": "Tunisia",
-    "turquia": "Turkiye",
+    "turquia": "Turkey",
     "uzbekistan": "Uzbekistan",
 }
+SPORTSDB_FALLBACK_SEARCH_DAYS = 2
+SPORTSDB_FALLBACK_MAX_CALLS_PER_MATCH = 4
+SPORTSDB_KNOCKOUT_ROUNDS = (32, 16, 125, 150, 160, 200)
+DISPLAY_KNOCKOUT_ROUNDS = frozenset((*KO_ROUNDS, "3RD"))
 
 
 def main() -> None:
@@ -306,28 +315,43 @@ def _load_matches(
     target_date = _normalize_date(build_date or _build_date())
     fetch_dates = _sportsdb_fetch_dates(target_date)
     expected_today = [match for match in matches if _normalize_date(match.fecha) in fetch_dates]
+    discover_knockouts = _should_discover_knockouts(base_matches, target_date)
     alerts: list[str] = []
 
-    if not expected_today:
+    if not expected_today and not discover_knockouts:
         return matches, False, alerts
-    if all(_has_result(match) for match in expected_today):
+    if expected_today and all(_has_result(match) for match in expected_today) and not discover_knockouts:
         return matches, False, alerts
 
     try:
-        parsed = []
-        for fetch_date in fetch_dates:
-            payload = fetch_world_cup_events_for_date(fetch_date)
-            parsed.extend(parse_events(payload))
-        parsed.extend(_search_missing_events(matches, parsed, expected_today))
-        if parsed:
-            patched, merge_alerts = _merge_live_scores(matches, parsed, expected_today=expected_today)
-            return patched, True, merge_alerts
-        alerts.append(
-            f"SportsDB no devolvió eventos para {', '.join(fetch_dates)}. Esperados: {len(expected_today)}."
-        )
+        parsed = _fetch_sportsdb_daily_matches(fetch_dates)
     except Exception as exc:
         alerts.append(f"No se pudo consultar SportsDB para {', '.join(fetch_dates)}: {exc}")
+        return matches, False, alerts
+
+    fallback_matches, fallback_alerts = _search_missing_events(matches, parsed, expected_today)
+    parsed.extend(fallback_matches)
+    alerts.extend(fallback_alerts)
+    if discover_knockouts:
+        knockout_matches, knockout_alerts = _fetch_sportsdb_knockout_matches()
+        parsed.extend(knockout_matches)
+        alerts.extend(knockout_alerts)
+    if parsed:
+        localized = [_localize_live_match(match, base_matches) for match in parsed]
+        patched, merge_alerts = _merge_live_scores(matches, localized, add_knockouts=True)
+        return patched, True, merge_alerts + alerts
+    alerts.append(
+        f"SportsDB no devolvió eventos para {', '.join(fetch_dates)}. Esperados: {len(expected_today)}."
+    )
     return matches, False, alerts
+
+
+def _should_discover_knockouts(seed_matches: list[Match], target_date: str) -> bool:
+    group_matches = [match for match in seed_matches if match.ronda == "grupos"]
+    if not any(match.matchid == 72 for match in group_matches):
+        return False
+    group_dates = [_normalize_date(match.fecha) for match in group_matches if match.fecha]
+    return bool(group_dates) and target_date > max(group_dates)
 
 
 def _sportsdb_fetch_dates(target_date: str) -> list[str]:
@@ -338,29 +362,91 @@ def _sportsdb_fetch_dates(target_date: str) -> list[str]:
     ]
 
 
+def _fetch_sportsdb_daily_matches(fetch_dates: list[str]) -> list[Match]:
+    parsed: list[Match] = []
+    for fetch_date in fetch_dates:
+        payload = fetch_world_cup_events_for_date(fetch_date)
+        parsed.extend(parse_events(payload))
+    return parsed
+
+
+def _fetch_sportsdb_knockout_matches() -> tuple[list[Match], list[str]]:
+    matches: list[Match] = []
+    alerts: list[str] = []
+    for round_number in SPORTSDB_KNOCKOUT_ROUNDS:
+        try:
+            payload = fetch_world_cup_events_for_round(round_number)
+        except Exception as exc:
+            alerts.append(f"No se pudo consultar SportsDB para la ronda {round_number}: {exc}")
+            continue
+        matches.extend(
+            match for match in parse_events(payload) if match.ronda in DISPLAY_KNOCKOUT_ROUNDS
+        )
+    return matches, alerts
+
+
 def _search_missing_events(
     seed_matches: list[Match],
     live_matches: list[Match],
     expected_today: list[Match],
-) -> list[Match]:
+) -> tuple[list[Match], list[str]]:
     missing = _missing_expected_matches(seed_matches, live_matches, expected_today)
     fallback_matches: list[Match] = []
+    alerts: list[str] = []
     for match in missing:
-        for event_name in _sportsdb_search_event_names(match):
-            try:
-                payload = search_events(event_name)
-            except Exception:
-                continue
-            parsed = parse_events(payload)
-            matched = [
-                live_match
-                for live_match in parsed
-                if _find_seed_match(seed_matches, live_match) is not None
-            ]
-            fallback_matches.extend(matched)
-            if matched:
-                break
-    return fallback_matches
+        matched, match_alerts = _search_missing_event(seed_matches, match)
+        fallback_matches.extend(matched)
+        alerts.extend(match_alerts)
+    return fallback_matches, alerts
+
+
+def _search_missing_event(
+    seed_matches: list[Match],
+    match: Match,
+) -> tuple[list[Match], list[str]]:
+    attempts = _sportsdb_search_attempts(match)
+    if not attempts:
+        return [], [
+            f"SportsDB fallback sin nombres de busqueda para {match.home_team} vs {match.away_team} ({match.fecha})."
+        ]
+
+    errors: list[str] = []
+    attempted: list[str] = []
+    for event_name, event_date in attempts:
+        attempted.append(f"{event_name} d={event_date}")
+        try:
+            payload = search_events(event_name, event_date)
+        except Exception as exc:
+            errors.append(
+                f"SportsDB fallback error para {match.home_team} vs {match.away_team} ({match.fecha}) "
+                f"con {event_name} d={event_date}: {exc}"
+            )
+            continue
+
+        parsed = parse_events(payload)
+        matched = [
+            live_match
+            for live_match in parsed
+            if _find_seed_match(seed_matches, live_match) is not None
+        ]
+        if matched:
+            return matched, errors
+
+    alerts = list(errors)
+    alerts.append(
+        f"SportsDB fallback sin emparejar {match.home_team} vs {match.away_team} ({match.fecha}). "
+        f"Intentos {len(attempts)}/{SPORTSDB_FALLBACK_MAX_CALLS_PER_MATCH}: {', '.join(attempted)}."
+    )
+    return [], alerts
+
+
+def _sportsdb_search_attempts(match: Match) -> list[tuple[str, str]]:
+    attempts = [
+        (event_name, date)
+        for event_name in _sportsdb_search_event_names(match)
+        for date in _sportsdb_search_dates(match.fecha)
+    ]
+    return attempts[:SPORTSDB_FALLBACK_MAX_CALLS_PER_MATCH]
 
 
 def _merge_previous_scores(
@@ -376,6 +462,12 @@ def _merge_previous_scores(
     ]
     patched = list(seed_matches)
     for previous_match in previous_matches:
+        if (
+            previous_match.ronda in DISPLAY_KNOCKOUT_ROUNDS
+            and _find_seed_match(patched, previous_match) is None
+        ):
+            patched.append(previous_match)
+            continue
         if not _has_result(previous_match):
             continue
         match_index = _find_seed_match(patched, previous_match)
@@ -390,6 +482,7 @@ def _merge_live_scores(
     live_matches: list[Match],
     *,
     expected_today: list[Match] | None = None,
+    add_knockouts: bool = False,
 ) -> tuple[list[Match], list[str]]:
     patched = list(seed_matches)
     alerts: list[str] = []
@@ -397,6 +490,14 @@ def _merge_live_scores(
     for live_match in live_matches:
         match_index = _find_seed_match(patched, live_match)
         if match_index is None:
+            if add_knockouts and live_match.ronda in DISPLAY_KNOCKOUT_ROUNDS:
+                patched.append(live_match)
+                if live_match.status in {"FT", "AET", "AOT", "AP"} and live_match.pasa is None:
+                    alerts.append(
+                        f"Eliminatoria SportsDB sin clasificado: {live_match.home_team} vs "
+                        f"{live_match.away_team} ({live_match.fecha}); requiere override de pasa."
+                    )
+                continue
             alerts.append(
                 f"Evento SportsDB sin emparejar: {live_match.home_team} vs {live_match.away_team} ({live_match.fecha})."
             )
@@ -410,6 +511,24 @@ def _merge_live_scores(
             )
 
     return patched, alerts
+
+
+def _localize_live_match(live_match: Match, seed_matches: list[Match]) -> Match:
+    preferred_names = {
+        _team_key(team): team
+        for match in seed_matches
+        for team in (match.home_team, match.away_team)
+    }
+    home_team = preferred_names.get(_team_key(live_match.home_team), live_match.home_team)
+    away_team = preferred_names.get(_team_key(live_match.away_team), live_match.away_team)
+    winner_key = _team_key(live_match.pasa) if live_match.pasa else ""
+    winner = preferred_names.get(winner_key, live_match.pasa)
+    return replace(
+        live_match,
+        home_team=home_team,
+        away_team=away_team,
+        pasa=winner,
+    )
 
 
 def _find_seed_match(seed_matches: list[Match], live_match: Match) -> int | None:
@@ -460,6 +579,14 @@ def _sportsdb_search_event_names(match: Match) -> list[str]:
     ]
 
 
+def _sportsdb_search_dates(value: str) -> list[str]:
+    date = datetime.fromisoformat(_normalize_date(value)).date()
+    return [
+        (date + timedelta(days=offset)).isoformat()
+        for offset in range(SPORTSDB_FALLBACK_SEARCH_DAYS)
+    ]
+
+
 def _sportsdb_search_team_name(value: Any) -> str:
     team = _team_key(value)
     return SPORTSDB_SEARCH_NAMES.get(team, str(value or "").strip())
@@ -488,6 +615,7 @@ def _patch_live_score(seed_match: Match, live_match: Match) -> Match:
         away_score=away_score,
         home_score_90=home_score_90,
         away_score_90=away_score_90,
+        pasa=live_match.pasa or seed_match.pasa,
         status=live_match.status or seed_match.status,
     )
 
