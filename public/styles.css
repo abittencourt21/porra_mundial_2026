@@ -374,6 +374,35 @@ main {
   overflow: hidden;
 }
 
+.groups-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.group-table {
+  table-layout: fixed;
+}
+
+.group-table th,
+.group-table td {
+  padding-inline: 6px;
+}
+
+.group-table th:first-child,
+.group-table td:first-child {
+  width: 30px;
+}
+
+.group-table th:nth-child(n + 3),
+.group-table td:nth-child(n + 3) {
+  width: 38px;
+}
+
+.group-table .team-name {
+  overflow-wrap: anywhere;
+}
+
 .section-note {
   margin-bottom: 12px;
   color: var(--muted);
@@ -1184,6 +1213,7 @@ td.center, th.center { text-align: center; }
   .rules, .rules-hero { grid-template-columns: 1fr; }
   .rules-wide, .rules-side, .rules-half, .rules-third { grid-column: 1 / -1; }
   .points-grid, .points-grid.four { grid-template-columns: 1fr; }
+  .groups-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 520px) {
