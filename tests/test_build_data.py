@@ -1,11 +1,66 @@
 import unittest
 from unittest.mock import call, patch
 
-from porra_mundial.build_data import _apply_overrides, _enrich_ranking, _load_matches, _team_key
+from porra_mundial.build_data import (
+    _apply_overrides,
+    _enrich_ranking,
+    _load_matches,
+    _sportsdb_search_event_names,
+    _team_key,
+)
 from porra_mundial.models import Match
 
 
 class BuildDataSportsDbTests(unittest.TestCase):
+    def test_load_matches_discovers_and_localizes_knockout_events(self):
+        seed = {
+            "partidos": [
+                {
+                    "matchid": 72,
+                    "group": "L",
+                    "roundnumber": 3,
+                    "ronda": "grupos",
+                    "fecha": "27.06.2026",
+                    "home_team": "Sudafrica",
+                    "away_team": "Canada",
+                    "status": "FT",
+                    "home_score": 1,
+                    "away_score": 0,
+                }
+            ]
+        }
+        knockout_payload = {
+            "events": [
+                {
+                    "idEvent": "2499618",
+                    "strEvent": "South Africa vs Canada",
+                    "strHomeTeam": "South Africa",
+                    "strAwayTeam": "Canada",
+                    "intRound": "32",
+                    "dateEvent": "2026-06-28",
+                    "strGroup": "",
+                    "strStatus": "NS",
+                }
+            ]
+        }
+
+        with patch(
+            "porra_mundial.build_data.fetch_world_cup_events_for_date",
+            return_value={"events": []},
+        ):
+            with patch(
+                "porra_mundial.build_data.fetch_world_cup_events_for_round",
+                side_effect=[knockout_payload] + [{"events": []}] * 5,
+            ):
+                matches, live_used, alerts = _load_matches(seed, build_date="2026-06-28")
+
+        self.assertTrue(live_used)
+        self.assertEqual(alerts, [])
+        self.assertEqual(len(matches), 2)
+        self.assertEqual(matches[1].matchid, 2499618)
+        self.assertEqual(matches[1].ronda, "R32")
+        self.assertEqual(matches[1].home_team, "Sudafrica")
+
     def test_team_key_matches_spanish_accents_and_sportsdb_names(self):
         cases = {
             "España": "Spain",
@@ -28,6 +83,35 @@ class BuildDataSportsDbTests(unittest.TestCase):
         for spanish_name, sportsdb_name in cases.items():
             with self.subTest(spanish_name=spanish_name, sportsdb_name=sportsdb_name):
                 self.assertEqual(_team_key(spanish_name), _team_key(sportsdb_name))
+
+    def test_sportsdb_fallback_names_match_api_event_names(self):
+        usa_match = Match(
+            matchid=59,
+            group="D",
+            roundnumber=3,
+            ronda="grupos",
+            fecha="25.06.2026",
+            home_team="Turquia",
+            away_team="Estados Unidos",
+        )
+        ivory_coast_match = Match(
+            matchid=56,
+            group="E",
+            roundnumber=3,
+            ronda="grupos",
+            fecha="25.06.2026",
+            home_team="Curazao",
+            away_team="Costa de Marfil",
+        )
+
+        self.assertEqual(
+            _sportsdb_search_event_names(usa_match),
+            ["Turkey_vs_USA", "USA_vs_Turkey"],
+        )
+        self.assertEqual(
+            _sportsdb_search_event_names(ivory_coast_match),
+            ["Curacao_vs_Ivory_Coast", "Ivory_Coast_vs_Curacao"],
+        )
 
     def test_load_matches_pairs_accented_seed_names_with_sportsdb_variants(self):
         payload = {
@@ -231,7 +315,7 @@ class BuildDataSportsDbTests(unittest.TestCase):
             with patch("porra_mundial.build_data.search_events", return_value=fallback_payload) as search:
                 matches, live_used, alerts = _load_matches(seed, build_date="2026-06-11")
 
-        search.assert_called_once_with("Mexico_vs_South_Africa")
+        search.assert_called_once_with("Mexico_vs_South_Africa", "2026-06-11")
         self.assertTrue(live_used)
         self.assertEqual(alerts, [])
         self.assertEqual(matches[0].home_score, 2)
@@ -271,7 +355,7 @@ class BuildDataSportsDbTests(unittest.TestCase):
             with patch("porra_mundial.build_data.search_events", return_value=fallback_payload) as search:
                 matches, live_used, alerts = _load_matches(seed, build_date="2026-06-24")
 
-        search.assert_called_once_with("Panama_vs_Croatia")
+        search.assert_called_once_with("Panama_vs_Croatia", "2026-06-23")
         self.assertTrue(live_used)
         self.assertEqual(alerts, [])
         self.assertEqual(matches[0].home_score, 0)
@@ -309,14 +393,71 @@ class BuildDataSportsDbTests(unittest.TestCase):
         }
 
         with patch("porra_mundial.build_data.fetch_world_cup_events_for_date", return_value={"events": []}):
-            with patch("porra_mundial.build_data.search_events", return_value=fallback_payload) as search:
+            with patch(
+                "porra_mundial.build_data.search_events",
+                side_effect=[{"events": []}, fallback_payload],
+            ) as search:
                 matches, live_used, alerts = _load_matches(seed, build_date="2026-06-24")
 
-        search.assert_called_once_with("Czech_Republic_vs_Mexico")
+        search.assert_has_calls(
+            [
+                call("Czech_Republic_vs_Mexico", "2026-06-24"),
+                call("Czech_Republic_vs_Mexico", "2026-06-25"),
+            ]
+        )
         self.assertTrue(live_used)
         self.assertEqual(alerts, [])
         self.assertEqual(matches[0].home_score, 0)
         self.assertEqual(matches[0].away_score, 3)
+
+    def test_load_matches_fallback_tries_next_api_date_for_late_local_match(self):
+        fallback_payload = {
+            "event": [
+                {
+                    "idEvent": "2461118",
+                    "strHomeTeam": "Turkey",
+                    "strAwayTeam": "USA",
+                    "intRound": "3",
+                    "intHomeScore": "3",
+                    "intAwayScore": "2",
+                    "dateEvent": "2026-06-26",
+                    "dateEventLocal": "2026-06-25",
+                    "strStatus": "FT",
+                }
+            ]
+        }
+        seed = {
+            "partidos": [
+                {
+                    "matchid": 59,
+                    "group": "D",
+                    "roundnumber": 3,
+                    "ronda": "grupos",
+                    "fecha": "25.06.2026",
+                    "home_team": "Turquia",
+                    "away_team": "Estados Unidos",
+                    "status": "NS",
+                }
+            ]
+        }
+
+        with patch("porra_mundial.build_data.fetch_world_cup_events_for_date", return_value={"events": []}):
+            with patch(
+                "porra_mundial.build_data.search_events",
+                side_effect=[{"events": []}, fallback_payload],
+            ) as search:
+                matches, live_used, alerts = _load_matches(seed, build_date="2026-06-26")
+
+        search.assert_has_calls(
+            [
+                call("Turkey_vs_USA", "2026-06-25"),
+                call("Turkey_vs_USA", "2026-06-26"),
+            ]
+        )
+        self.assertTrue(live_used)
+        self.assertEqual(alerts, [])
+        self.assertEqual(matches[0].home_score, 3)
+        self.assertEqual(matches[0].away_score, 2)
 
     def test_load_matches_fetches_previous_day_for_midnight_boundary(self):
         payload_previous_day = {
@@ -458,7 +599,8 @@ class BuildDataSportsDbTests(unittest.TestCase):
         self.assertEqual(matches[0].home_score, 2)
         self.assertEqual(matches[0].away_score, 1)
         self.assertIsNone(matches[1].home_score)
-        self.assertEqual(len(alerts), 1)
+        self.assertEqual(len(alerts), 2)
+        self.assertIn("SportsDB fallback sin emparejar", alerts[0])
 
     def test_load_matches_skips_sportsdb_when_expected_matches_already_have_scores(self):
         seed = {

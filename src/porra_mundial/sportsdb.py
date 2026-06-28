@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import Counter
 import json
+import os
 from typing import Any
 from urllib.parse import urlencode
 from urllib.request import urlopen
@@ -9,7 +10,8 @@ from urllib.request import urlopen
 from .models import Match
 
 
-BASE_URL = "https://www.thesportsdb.com/api/v1/json/3"
+API_KEY = os.getenv("SPORTSDB_API_KEY", "123")
+BASE_URL = f"https://www.thesportsdb.com/api/v1/json/{API_KEY}"
 WORLD_CUP_LEAGUE_ID = "4429"
 
 
@@ -29,6 +31,14 @@ def fetch_world_cup_events_for_date(date: str) -> dict:
     """Descarga eventos de la Copa del Mundo para un dia concreto."""
     query = urlencode({"d": date, "l": WORLD_CUP_LEAGUE_ID})
     url = f"{BASE_URL}/eventsday.php?{query}"
+    with urlopen(url, timeout=30) as response:
+        return json.loads(response.read().decode("utf-8"))
+
+
+def fetch_world_cup_events_for_round(round_number: int, season: str = "2026") -> dict:
+    """Descarga todos los eventos de una ronda de la Copa del Mundo."""
+    query = urlencode({"id": WORLD_CUP_LEAGUE_ID, "r": round_number, "s": season})
+    url = f"{BASE_URL}/eventsround.php?{query}"
     with urlopen(url, timeout=30) as response:
         return json.loads(response.read().decode("utf-8"))
 
@@ -54,19 +64,24 @@ def parse_event(event: dict[str, Any]) -> Match:
     TheSportsDB no expone ahora el matchid FIFA 1-104. Hasta tener un mapa
     oficial, usamos `idEvent` como identificador tecnico estable.
     """
+    ronda = _infer_ronda(event)
+    home_team = event.get("strHomeTeam") or ""
+    away_team = event.get("strAwayTeam") or ""
+    home_score = _parse_int(event.get("intHomeScore"))
+    away_score = _parse_int(event.get("intAwayScore"))
     return Match(
         matchid=int(event["idEvent"]),
         group=event.get("strGroup"),
         roundnumber=_parse_int(event.get("intRound")),
-        ronda=_infer_ronda(event),
+        ronda=ronda,
         fecha=_format_date(event.get("dateEventLocal") or event.get("dateEvent")),
-        home_team=event.get("strHomeTeam") or "",
-        away_team=event.get("strAwayTeam") or "",
-        home_score=_parse_int(event.get("intHomeScore")),
-        away_score=_parse_int(event.get("intAwayScore")),
-        home_score_90=_parse_int(event.get("intHomeScore")),
-        away_score_90=_parse_int(event.get("intAwayScore")),
-        pasa=None,
+        home_team=home_team,
+        away_team=away_team,
+        home_score=home_score,
+        away_score=away_score,
+        home_score_90=home_score,
+        away_score_90=away_score,
+        pasa=_infer_winner(ronda, home_team, away_team, home_score, away_score, event.get("strStatus")),
         status=event.get("strStatus") or "NS",
     )
 
@@ -114,7 +129,7 @@ def _infer_ronda(event: dict[str, Any]) -> str:
         return "grupos"
     raw_round = " ".join(
         str(event.get(key) or "")
-        for key in ("strRound", "strStage", "strDescriptionEN")
+        for key in ("strEvent", "strRound", "strStage", "strDescriptionEN")
     ).casefold()
     if "round of 32" in raw_round or "r32" in raw_round:
         return "R32"
@@ -128,4 +143,30 @@ def _infer_ronda(event: dict[str, Any]) -> str:
         return "3RD"
     if "final" in raw_round:
         return "F"
-    return "grupos"
+    round_number = _parse_int(event.get("intRound"))
+    return {
+        32: "R32",
+        16: "R16",
+        125: "QF",
+        150: "SF",
+        160: "3RD",
+        200: "F",
+    }.get(
+        round_number,
+        "grupos",
+    )
+
+
+def _infer_winner(
+    ronda: str,
+    home_team: str,
+    away_team: str,
+    home_score: int | None,
+    away_score: int | None,
+    status: Any,
+) -> str | None:
+    if ronda == "grupos" or str(status or "").upper() not in {"FT", "AET", "AOT", "AP"}:
+        return None
+    if home_score is None or away_score is None or home_score == away_score:
+        return None
+    return home_team if home_score > away_score else away_team
