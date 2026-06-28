@@ -104,16 +104,16 @@ Por cada partido de cada uno de los 4 equipos del participante: victoria 3, empa
 ### Playoffs
 Puntuación por resultado **a los 90 minutos** (prórroga y penaltis no puntúan por resultado): victoria 3, empate 1, derrota 0.
 
-**Extra por pasar la ronda** (acumulable en cada ronda superada):
+**Extra por alcanzar la ronda** (acumulable y concedido antes de jugar el partido):
 
-| Bombo de origen | Extra por ronda superada |
+| Bombo de origen | Extra por ronda alcanzada |
 |---|---|
 | Bombo 1 | +1 |
 | Bombo 2 | +2 |
 | Bombo 3 | +3 |
 | Bombo 4 | +4 |
 
-Rondas que otorgan extra: R32, Octavos, Cuartos, Semifinal, Final (ganar la final = superar la última ronda). Un equipo de Bombo 4 que gana el torneo acumula hasta +20 de pase (5 rondas × 4).
+Rondas que otorgan extra: R32, Octavos, Cuartos, Semifinal y Final. La presencia de la selección en el cruce concede el bonus, aunque el partido todavía no se haya jugado. Un equipo de Bombo 4 que alcanza la final acumula hasta +20 (5 rondas × 4).
 
 ### Bonus final (una vez acabado el torneo)
 
@@ -236,7 +236,7 @@ Notas del contrato:
 4. **Motor de puntuación** en Python (TDD). Casos de test claros:
    - 3/1/0 en grupos (local y visitante).
    - 3/1/0 a 90' en playoffs; empate a 90' = 1 aunque luego haya penaltis.
-   - Extra de bombo por cada ronda superada (acumulable).
+   - Extra de bombo por cada ronda alcanzada (acumulable y previo al partido).
    - Bonus: campeón +10, subcampeón +5, pichichi +7, campeón-entre-los-4 +6.
    - Validación de combinación (intersección ≥ 3 → conflicto).
 5. **Workflow GitHub Actions**: cron horario; lee Sheet + TheSportsDB; ejecuta motor; commit de `datos.json`.

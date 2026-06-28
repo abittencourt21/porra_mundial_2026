@@ -726,11 +726,11 @@ function renderRules() {
           <li>Semifinal.</li>
           <li>Final.</li>
         </ul>
-        <p>Ganar la final también cuenta como superar ronda.</p>
+        <p>El bonus se concede al alcanzar cada ronda, antes de jugar el partido.</p>
       </section>
 
       <section class="rules-block rules-half">
-        <h2>Bonus por pasar ronda</h2>
+        <h2>Bonus por alcanzar ronda</h2>
         <table class="rules-table">
           <thead><tr><th>Bombo original</th><th>Extra por ronda</th></tr></thead>
           <tbody>

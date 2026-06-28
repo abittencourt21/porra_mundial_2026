@@ -75,6 +75,44 @@ class ScoringTests(unittest.TestCase):
         self.assertEqual(scored["puntos_total"], 2)
         self.assertEqual(scored["team_data"][0]["rondas_pasadas"], ["R32"])
 
+    def test_reaching_r32_awards_bombo_bonus_before_match_is_played(self):
+        participant = {
+            "alias": "Ana",
+            "equipos": ["Espana", "Brasil", "Marruecos", "Japon"],
+            "campeon": "Espana",
+            "subcampeon": "Brasil",
+            "pichichi": "Alex",
+        }
+        matches = [
+            {
+                "matchid": 73,
+                "ronda": "R32",
+                "fecha": "28.06.2026",
+                "home_team": "Japon",
+                "away_team": "Italia",
+                "home_score": None,
+                "away_score": None,
+                "home_score_90": None,
+                "away_score_90": None,
+                "pasa": None,
+                "status": "NS",
+            }
+        ]
+
+        scored = score_participant(participant, matches, _bombos(), {"ultima_actualizacion": ""})
+
+        self.assertEqual(scored["desglose"]["playoffs_resultado"], 0)
+        self.assertEqual(scored["desglose"]["playoffs_pase"], 4)
+        self.assertEqual(scored["team_data"][3]["rondas_pasadas"], ["R32"])
+
+        scored_duplicate = score_participant(
+            participant,
+            matches + [{**matches[0], "matchid": 74}],
+            _bombos(),
+            {"ultima_actualizacion": ""},
+        )
+        self.assertEqual(scored_duplicate["desglose"]["playoffs_pase"], 4)
+
     def test_third_place_match_does_not_score_or_count_as_round_passed(self):
         participant = {
             "alias": "Ana",
