@@ -173,7 +173,9 @@ TEAM_ALIASES = {
     for alias, canonical in _RAW_TEAM_ALIASES.items()
 }
 SPORTSDB_SEARCH_NAMES = {
+    "alemania": "Germany",
     "arabia saudi": "Saudi Arabia",
+    "argelia": "Algeria",
     "belgica": "Belgium",
     "bosnia y herzegovina": "Bosnia-Herzegovina",
     "brasil": "Brazil",
@@ -199,10 +201,13 @@ SPORTSDB_SEARCH_NAMES = {
     "marruecos": "Morocco",
     "mexico": "Mexico",
     "nueva zelanda": "New Zealand",
+    "noruega": "Norway",
     "paises bajos": "Netherlands",
     "panama": "Panama",
     "rd congo": "DR Congo",
     "sudafrica": "South Africa",
+    "suecia": "Sweden",
+    "suiza": "Switzerland",
     "tunez": "Tunisia",
     "turquia": "Turkey",
     "uzbekistan": "Uzbekistan",

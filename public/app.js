@@ -137,6 +137,13 @@ const ROUND_LABEL = {
 };
 const ROUND_ORDER = { R32: 1, R16: 2, QF: 3, SF: 4, "3RD": 5, F: 6 };
 const SCORED_KO_ROUNDS = new Set(["R32", "R16", "QF", "SF", "F"]);
+const DRAW_AFTER_90_STATUSES = new Set(["AET", "AOT", "AP", "PEN"]);
+const KO_STATUS_LABELS = {
+  AET: "AET",
+  AOT: "AET",
+  AP: "AP",
+  PEN: "AP",
+};
 
 let DATA = null;
 let activeTab = "porra";
@@ -620,11 +627,16 @@ function renderMatchRow(match) {
   const homeScore = scoreValue(match.home_score_90 ?? match.home_score);
   const awayScore = scoreValue(match.away_score_90 ?? match.away_score);
   const score = homeScore === null || awayScore === null ? "vs" : `${homeScore}-${awayScore}`;
+  const status = String(match.status || "").toUpperCase();
+  const statusLabel = match.ronda !== "grupos" ? KO_STATUS_LABELS[status] : "";
   return `
     <div class="match-row">
       <div class="match-date">${escapeHtml(match.fecha || "")}<br>${escapeHtml(match.group ? `Grupo ${match.group}` : ROUND_LABEL[match.ronda] || match.ronda || "")}</div>
       <div class="home">${teamLabel(match.home_team || "")}</div>
-      <div class="result">${score}</div>
+      <div class="result">
+        <span>${score}</span>
+        ${statusLabel ? `<small class="match-status">${statusLabel}</small>` : ""}
+      </div>
       <div class="away">${teamLabel(match.away_team || "")}</div>
     </div>
   `;
@@ -808,7 +820,10 @@ function computeTeamScores() {
       const row = byName[cleanTeam(teamName)] || byName[looseTeamKey(teamName)];
       if (!row) return;
       const [gf, gc] = goalsFor(match, teamName, match.ronda !== "grupos");
-      const points = resultPoints(gf, gc);
+      const status = String(match.status || "").toUpperCase();
+      const points = match.ronda !== "grupos" && DRAW_AFTER_90_STATUSES.has(status)
+        ? 1
+        : resultPoints(gf, gc);
       if (match.ronda === "grupos") {
         row.grupos += points;
       } else if (SCORED_KO_ROUNDS.has(match.ronda)) {

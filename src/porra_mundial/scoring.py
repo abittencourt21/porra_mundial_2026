@@ -11,6 +11,7 @@ BONUS_POINTS = {
     "pichichi": 7,
     "campeon_surprise": 6,
 }
+DRAW_AFTER_90_STATUSES = {"AET", "AOT", "AP", "PEN"}
 
 
 def normalize_name(value: str) -> str:
@@ -52,7 +53,11 @@ def score_participant(
                 score.g_pts += result_points(gf, gc)
             elif match.ronda in KO_ROUNDS:
                 gf, gc = _goals_for_team(match, team, use_90=True)
-                pts_resultado = result_points(gf, gc)
+                pts_resultado = (
+                    1
+                    if str(match.status or "").upper() in DRAW_AFTER_90_STATUSES
+                    else result_points(gf, gc)
+                )
                 reached_round = match.ronda not in reached_rounds[team]
                 pts_pase = score.bombo if reached_round else 0
                 score.ko_result_pts += pts_resultado
