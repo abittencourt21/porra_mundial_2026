@@ -113,6 +113,42 @@ class BuildDataSportsDbTests(unittest.TestCase):
             ["Curacao_vs_Ivory_Coast", "Ivory_Coast_vs_Curacao"],
         )
 
+    def test_sportsdb_fallback_maps_remaining_r32_api_names(self):
+        cases = [
+            ("Alemania", "Paraguay", "Germany_vs_Paraguay"),
+            ("Costa de Marfil", "Noruega", "Ivory_Coast_vs_Norway"),
+            ("Francia", "Suecia", "France_vs_Sweden"),
+        ]
+
+        for home_team, away_team, expected in cases:
+            with self.subTest(home_team=home_team, away_team=away_team):
+                match = Match(
+                    matchid=88,
+                    group=None,
+                    roundnumber=32,
+                    ronda="R32",
+                    fecha="02.07.2026",
+                    home_team=home_team,
+                    away_team=away_team,
+                )
+                self.assertEqual(_sportsdb_search_event_names(match)[0], expected)
+
+    def test_sportsdb_fallback_uses_switzerland_algeria_api_names(self):
+        match = Match(
+            matchid=88,
+            group=None,
+            roundnumber=32,
+            ronda="R32",
+            fecha="02.07.2026",
+            home_team="Suiza",
+            away_team="Argelia",
+        )
+
+        self.assertEqual(
+            _sportsdb_search_event_names(match),
+            ["Switzerland_vs_Algeria", "Algeria_vs_Switzerland"],
+        )
+
     def test_load_matches_pairs_accented_seed_names_with_sportsdb_variants(self):
         payload = {
             "events": [

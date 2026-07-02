@@ -113,6 +113,43 @@ class ScoringTests(unittest.TestCase):
         )
         self.assertEqual(scored_duplicate["desglose"]["playoffs_pase"], 4)
 
+    def test_extra_time_and_penalties_score_as_draws_at_90_minutes(self):
+        participant = {
+            "alias": "Ana",
+            "equipos": ["Espana", "Brasil", "Marruecos", "Japon"],
+            "campeon": "Espana",
+            "subcampeon": "Brasil",
+            "pichichi": "Alex",
+        }
+
+        for status in ("AET", "AOT", "AP", "PEN"):
+            with self.subTest(status=status):
+                matches = [
+                    {
+                        "matchid": 73,
+                        "ronda": "R32",
+                        "fecha": "01.07.2026",
+                        "home_team": "Espana",
+                        "away_team": "Brasil",
+                        "home_score": 3,
+                        "away_score": 2,
+                        "home_score_90": 3,
+                        "away_score_90": 2,
+                        "pasa": "Espana",
+                        "status": status,
+                    }
+                ]
+
+                scored = score_participant(
+                    participant,
+                    matches,
+                    _bombos(),
+                    {"ultima_actualizacion": ""},
+                )
+
+                self.assertEqual(scored["desglose"]["playoffs_resultado"], 2)
+                self.assertEqual(scored["desglose"]["playoffs_pase"], 3)
+
     def test_third_place_match_does_not_score_or_count_as_round_passed(self):
         participant = {
             "alias": "Ana",
