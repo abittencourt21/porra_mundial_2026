@@ -1080,9 +1080,6 @@ function teamCompetitionStatus(team) {
   if (!teamMatches.length) return "eliminated";
 
   const latestRound = Math.max(...teamMatches.map((match) => ROUND_ORDER[match.ronda] || 0));
-  const tournamentRound = Math.max(...knockoutMatches.map((match) => ROUND_ORDER[match.ronda] || 0));
-  if (latestRound < tournamentRound) return "eliminated";
-
   const latestMatch = teamMatches.find((match) => (ROUND_ORDER[match.ronda] || 0) === latestRound);
   const status = String(latestMatch.status || "").toUpperCase();
   if (!["FT", "AET", "AOT", "AP", "PEN"].includes(status)) return "alive";
