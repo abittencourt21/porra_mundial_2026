@@ -69,6 +69,23 @@ class SportsDbTests(unittest.TestCase):
         self.assertEqual(match.ronda, "R32")
         self.assertEqual(match.pasa, "Canada")
 
+    def test_parse_event_uses_penalty_score_to_infer_winner(self):
+        match = parse_event(
+            {
+                "idEvent": "2502846",
+                "strHomeTeam": "Germany",
+                "strAwayTeam": "Paraguay",
+                "intRound": "32",
+                "intHomeScore": "1",
+                "intAwayScore": "1",
+                "intHomeScoreExtra": "3",
+                "intAwayScoreExtra": "4",
+                "dateEvent": "2026-06-29",
+                "strStatus": "AP",
+            }
+        )
+
+        self.assertEqual(match.pasa, "Paraguay")
     def test_parse_event_maps_sportsdb_late_knockout_rounds(self):
         expected = {125: "QF", 150: "SF", 160: "3RD", 200: "F"}
         for round_number, ronda in expected.items():
