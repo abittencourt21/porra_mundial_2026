@@ -314,7 +314,7 @@ function renderParticipant(participant, index) {
         <div class="rank">${rank}${rankDelta(participant)}</div>
         <div>
           <div class="alias">${escapeHtml(participant.alias)}</div>
-          <div class="teams">${(participant.equipos || []).map((team) => `<span class="chip">${teamLabel(team)}</span>`).join("")}</div>
+          <div class="teams">${(participant.equipos || []).map((team) => `<span class="chip">${teamLabel(team, true)}</span>`).join("")}</div>
           ${isOpen ? "" : participantSummary(participant)}
         </div>
         <div class="score">${participant.puntos_total || 0}<span>puntos</span></div>
@@ -345,7 +345,7 @@ function renderTeamData(teamData) {
   return `
     <div class="team-card" style="border-color:${color}55">
       <h3>
-        <span>${teamLabel(teamData.team)}</span>
+        <span>${teamLabel(teamData.team, true)}</span>
         <span style="color:${color}">${(teamData.g_pts || 0) + (teamData.ko_pts || 0)}</span>
       </h3>
       <small>Bombo ${bombo} · Grupos ${teamData.g_pts || 0} · KO ${teamData.ko_pts || 0}</small>
@@ -1054,13 +1054,48 @@ function looseTeamKey(team) {
     .toLowerCase();
 }
 
-function teamLabel(team) {
+function teamLabel(team, showCompetitionStatus = false) {
   const cleaned = cleanTeam(team);
   const display = displayTeamName(cleaned);
   const code = FLAGS[cleaned] || FLAGS[display] || FLAGS[String(team || "")];
   const suffix = String(team || "").includes("**") ? "**" : String(team || "").includes("*") ? "*" : "";
   const flag = code ? `<img class="flag" src="https://flagcdn.com/w40/${code}.png" alt="">` : "";
-  return `<span class="team-label">${flag}<span>${escapeHtml(display)}${suffix}</span></span>`;
+  const competitionStatus = showCompetitionStatus ? teamCompetitionStatus(team) : "";
+  const statusIcon = competitionStatus === "alive"
+    ? `<span class="competition-status alive" role="img" aria-label="Sigue en competición">✓</span>`
+    : competitionStatus === "eliminated"
+      ? `<span class="competition-status eliminated" role="img" aria-label="Eliminada">×</span>`
+      : "";
+  return `<span class="team-label">${flag}<span>${escapeHtml(display)}${suffix}</span>${statusIcon}</span>`;
+}
+
+function teamCompetitionStatus(team) {
+  const knockoutMatches = DATA.partidos.filter((match) => SCORED_KO_ROUNDS.has(match.ronda));
+  if (!knockoutMatches.length) return "";
+
+  const teamKey = looseTeamKey(team);
+  const teamMatches = knockoutMatches.filter((match) =>
+    [match.home_team, match.away_team].some((name) => looseTeamKey(name) === teamKey)
+  );
+  if (!teamMatches.length) return "eliminated";
+
+  const latestRound = Math.max(...teamMatches.map((match) => ROUND_ORDER[match.ronda] || 0));
+  const tournamentRound = Math.max(...knockoutMatches.map((match) => ROUND_ORDER[match.ronda] || 0));
+  if (latestRound < tournamentRound) return "eliminated";
+
+  const latestMatch = teamMatches.find((match) => (ROUND_ORDER[match.ronda] || 0) === latestRound);
+  const status = String(latestMatch.status || "").toUpperCase();
+  if (!["FT", "AET", "AOT", "AP", "PEN"].includes(status)) return "alive";
+
+  if (latestMatch.pasa) {
+    return looseTeamKey(latestMatch.pasa) === teamKey ? "alive" : "eliminated";
+  }
+
+  const homeScore = scoreValue(latestMatch.home_score);
+  const awayScore = scoreValue(latestMatch.away_score);
+  if (homeScore === null || awayScore === null || homeScore === awayScore) return "";
+  const winner = homeScore > awayScore ? latestMatch.home_team : latestMatch.away_team;
+  return looseTeamKey(winner) === teamKey ? "alive" : "eliminated";
 }
 
 function displayTeamName(team) {

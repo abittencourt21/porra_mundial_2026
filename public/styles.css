@@ -1025,6 +1025,19 @@ td.center, th.center { text-align: center; }
   color: inherit;
 }
 
+.competition-status {
+  display: inline-grid;
+  place-items: center;
+  width: 14px;
+  height: 14px;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.competition-status.alive { color: var(--ok); }
+.competition-status.eliminated { color: var(--bad); }
+
 .rules {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
@@ -1227,6 +1240,17 @@ td.center, th.center { text-align: center; }
   .rules-wide, .rules-side, .rules-half, .rules-third { grid-column: 1 / -1; }
   .points-grid, .points-grid.four { grid-template-columns: 1fr; }
   .groups-grid { grid-template-columns: 1fr; }
+  .group-card {
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .group-table {
+    min-width: 460px;
+  }
+  .group-table .team-name {
+    overflow-wrap: normal;
+  }
 }
 
 @media (max-width: 520px) {

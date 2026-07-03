@@ -69,6 +69,8 @@ def parse_event(event: dict[str, Any]) -> Match:
     away_team = event.get("strAwayTeam") or ""
     home_score = _parse_int(event.get("intHomeScore"))
     away_score = _parse_int(event.get("intAwayScore"))
+    home_score_extra = _parse_int(event.get("intHomeScoreExtra"))
+    away_score_extra = _parse_int(event.get("intAwayScoreExtra"))
     return Match(
         matchid=int(event["idEvent"]),
         group=event.get("strGroup"),
@@ -81,7 +83,16 @@ def parse_event(event: dict[str, Any]) -> Match:
         away_score=away_score,
         home_score_90=home_score,
         away_score_90=away_score,
-        pasa=_infer_winner(ronda, home_team, away_team, home_score, away_score, event.get("strStatus")),
+        pasa=_infer_winner(
+            ronda,
+            home_team,
+            away_team,
+            home_score,
+            away_score,
+            event.get("strStatus"),
+            home_score_extra,
+            away_score_extra,
+        ),
         status=event.get("strStatus") or "NS",
     )
 
@@ -164,9 +175,13 @@ def _infer_winner(
     home_score: int | None,
     away_score: int | None,
     status: Any,
+    home_score_extra: int | None = None,
+    away_score_extra: int | None = None,
 ) -> str | None:
-    if ronda == "grupos" or str(status or "").upper() not in {"FT", "AET", "AOT", "AP"}:
+    if ronda == "grupos" or str(status or "").upper() not in {"FT", "AET", "AOT", "AP", "PEN"}:
         return None
-    if home_score is None or away_score is None or home_score == away_score:
+    if home_score is not None and away_score is not None and home_score != away_score:
+        return home_team if home_score > away_score else away_team
+    if home_score_extra is None or away_score_extra is None or home_score_extra == away_score_extra:
         return None
-    return home_team if home_score > away_score else away_team
+    return home_team if home_score_extra > away_score_extra else away_team
